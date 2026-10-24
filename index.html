@@ -1,4375 +1,1381 @@
 <!DOCTYPE html>
-
 <html lang="vi" class="dark">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Hệ Thống Điều Hành 20 Đầu Nhận Băng Chuyền - Inbound Operations Hub</title>
-
-<!-- Tailwind CSS -->
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Three.js (Tùy chọn cho Tab 3D, có cơ chế chống lỗi hoàn toàn nếu mạng chặn) -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<style>
-
-{ box-sizing: border-box; }
-body {
-
-margin: 0;
-
-padding: 0;
-
-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-background-color: #060a12;
-
-color: #f1f5f9;
-
-overflow-x: hidden;
-
-user-select: none;
-
-}
-
-.font-mono-num {
-
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-font-variant-numeric: tabular-nums;
-
-}
-
-/* Thanh cuộn công nghiệp */
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-
-::-webkit-scrollbar-track { background: #090e1a; }
-
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-
-::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
-
-
-
-/* Hiệu ứng băng chuyền đang chạy */
-
-@keyframes beltFlowDown {
-
-0% { background-position: 0 0; }
-
-100% { background-position: 0 24px; }
-
-}
-
-@keyframes beltFlowUp {
-
-0% { background-position: 0 24px; }
-
-100% { background-position: 0 0; }
-
-}
-
-@keyframes beltFlowRight {
-
-0% { background-position: 0 0; }
-
-100% { background-position: 40px 0; }
-
-}
-
-.belt-active-down {
-
-background-image: repeating-linear-gradient(180deg, #0f172a 0px, #0f172a 8px, #1e293b 8px, #1e293b 16px);
-
-background-size: 100% 24px;
-
-animation: beltFlowDown 0.7s linear infinite;
-
-}
-
-.belt-active-up {
-
-background-image: repeating-linear-gradient(180deg, #0f172a 0px, #0f172a 8px, #1e293b 8px, #1e293b 16px);
-
-background-size: 100% 24px;
-
-animation: beltFlowUp 0.7s linear infinite;
-
-}
-
-.belt-main-horizontal {
-
-background-image: repeating-linear-gradient(90deg, #0f172a 0px, #0f172a 14px, #164e63 14px, #164e63 28px);
-
-background-size: 40px 100%;
-
-animation: beltFlowRight 0.6s linear infinite;
-
-}
-
-.belt-stopped {
-
-background-image: repeating-linear-gradient(45deg, #111827 0px, #111827 8px, #1f2937 8px, #1f2937 16px);
-
-}
-
-
-
-/* Hiệu ứng kiện hàng chạy trên nhánh băng chuyền */
-
-@keyframes boxMoveDown {
-
-0% { top: 4%; opacity: 0.9; }
-
-90% { top: 82%; opacity: 1; }
-
-100% { top: 92%; opacity: 0; }
-
-}
-
-@keyframes boxMoveUp {
-
-0% { bottom: 4%; opacity: 0.9; }
-
-90% { bottom: 82%; opacity: 1; }
-
-100% { bottom: 92%; opacity: 0; }
-
-}
-
-.parcel-down { animation: boxMoveDown 2.2s linear infinite; }
-
-.parcel-up { animation: boxMoveUp 2.2s linear infinite; }
-
-
-
-.glass-panel {
-
-background: rgba(15, 23, 42, 0.92);
-
-backdrop-filter: blur(10px);
-
-border: 1px solid rgba(51, 65, 85, 0.8);
-
-}
-
-.line-card-off {
-
-background: rgba(15, 23, 42, 0.45) !important;
-
-border-color: rgba(71, 85, 105, 0.45) !important;
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Điều Hành 20 Đầu Nhận Băng Chuyền - Inbound Operations Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #060a12;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        .font-mono-num {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-variant-numeric: tabular-nums;
+        }
+        /* Custom Industrial Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090e1a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Conveyor animations */
+        @keyframes beltFlowDown {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 24px; }
+        }
+        @keyframes beltFlowUp {
+            0% { background-position: 0 24px; }
+            100% { background-position: 0 0; }
+        }
+        @keyframes beltFlowRight {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+        .belt-active-down {
+            background-image: repeating-linear-gradient(180deg, #0f172a 0px, #0f172a 8px, #1e293b 8px, #1e293b 16px);
+            background-size: 100% 24px;
+            animation: beltFlowDown 0.7s linear infinite;
+        }
+        .belt-active-up {
+            background-image: repeating-linear-gradient(180deg, #0f172a 0px, #0f172a 8px, #1e293b 8px, #1e293b 16px);
+            background-size: 100% 24px;
+            animation: beltFlowUp 0.7s linear infinite;
+        }
+        .belt-main-horizontal {
+            background-image: repeating-linear-gradient(90deg, #0f172a 0px, #0f172a 14px, #164e63 14px, #164e63 28px);
+            background-size: 40px 100%;
+            animation: beltFlowRight 0.6s linear infinite;
+        }
+        .belt-stopped {
+            background-image: repeating-linear-gradient(45deg, #111827 0px, #111827 8px, #1f2937 8px, #1f2937 16px);
+        }
+
+        /* Parcel movement animations */
+        @keyframes boxMoveDown {
+            0% { top: 4%; opacity: 0.9; }
+            90% { top: 82%; opacity: 1; }
+            100% { top: 92%; opacity: 0; }
+        }
+        @keyframes boxMoveUp {
+            0% { bottom: 4%; opacity: 0.9; }
+            90% { bottom: 82%; opacity: 1; }
+            100% { bottom: 92%; opacity: 0; }
+        }
+        .parcel-down { animation: boxMoveDown 2.2s linear infinite; }
+        .parcel-up { animation: boxMoveUp 2.2s linear infinite; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+        }
+        .line-card-off {
+            background: rgba(15, 23, 42, 0.45) !important;
+            border-color: rgba(71, 85, 105, 0.45) !important;
+        }
+    </style>
 </head>
-
 <body class="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden">
 
-
-
-<!-- ==================== HEADER ĐIỀU HƯỚNG 5 PHÂN HỆ ==================== -->
-
-<header class="h-14 bg-slate-900 border-b border-slate-800 px-3 lg:px-5 flex items-center justify-between shrink-0 z-50 shadow-lg">
-
-<!-- Logo & Tên Hệ Thống -->
-
-<div class="flex items-center gap-2.5">
-
-<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-black text-slate-950 shadow-md shadow-cyan-500/20 text-xs">
-
-20L
-
-</div>
-
-<div>
-
-<div class="flex items-center gap-2">
-
-<h1 class="font-extrabold text-xs sm:text-sm tracking-wide text-white uppercase">
-
-Hệ Thống Băng Chuyền 20 Đầu Nhận
-
-</h1>
-
-<span class="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono-num font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">
-
-WMS ENTERPRISE v4.0
-
-</span>
-
-</div>
-
-<p class="text-[10px] text-slate-400 hidden sm:block">
-
-Giám Sát 20 Tele Line • 1 Quét + 4 Hỗ Trợ/Line • Top 6 API • Quản Lý Xe Tồn
-
-</p>
-
-</div>
-
-</div>
-
-
-
-<!-- Thanh Chuyển Đổi 4 Trang Chức Năng Chính -->
-
-<nav class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
-
-<button id="nav-master" onclick="switchPage('master')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow">
-
-Trang Tổng (20 Đầu Nhận)
-</button>
-
-<button id="nav-crew" onclick="switchPage('crew')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-
-2. Nhập Người Quét (1+4) &amp; Bật/Tắt Line
-
-</button>
-
-<button id="nav-api" onclick="switchPage('api')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-
-3. Trang Chạy API (API Engine)
-
-</button>
-
-<button id="nav-dashboard" onclick="switchPage('dashboard')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-
-4. Dashboard Chi Tiết (Line • Xe • Nhân Sự)
-
-</button>
-
-</nav>
-
-
-
-<!-- Trạng Thái API & Đồng Hồ Thực -->
-
-<div class="hidden md:flex items-center gap-3">
-
-<div onclick="switchPage('api')" class="cursor-pointer flex items-center gap-2 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg hover:border-cyan-500/50 transition">
-
-<span id="header-api-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-
-<span id="header-api-dot-solid" class="w-2 h-2 rounded-full bg-emerald-500 -ml-4"></span>
-
-<span id="header-api-text" class="text-[11px] font-mono-num font-bold text-emerald-400">API RUNNING</span>
-
-</div>
-
-<div class="text-right">
-
-<div id="header-clock" class="font-mono-num text-xs font-bold text-white">10:07:00</div>
-
-<div id="header-active-slot" class="text-[10px] text-cyan-400 font-semibold">Khung 10:00 - 11:00</div>
-
-</div>
-
-</div>
-
-</header>
-
-
-
-<!-- ==================== KHÔNG GIAN LÀM VIỆC CHÍNH ==================== -->
-
-<main class="flex-1 overflow-hidden relative flex flex-col">
-
-
-
-<!-- ===================================================================== -->
-
-<!-- MODULE 1: TRANG TỔNG (20 ĐẦU NHẬN + TOP 6 API + XE TỒN + TẤT CẢ GIỜ) -->
-
-<!-- ===================================================================== -->
-
-<section id="page-master" class="flex-1 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden bg-slate-950">
-
-
-
-<!-- CỘT TRÁI / TRUNG TÂM: SƠ ĐỒ TRỰC QUAN 20 ĐẦU NHẬN BĂNG CHUYỀN -->
-
-<div class="flex-1 flex flex-col h-full overflow-y-auto p-3 lg:p-4 space-y-3">
-
-
-
-<!-- Dải KPI Tổng Quan Nhanh Trên Đỉnh Trang Tổng -->
-
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0">
-
-<!-- KPI 1: Trạng thái 20 đầu line -->
-
-<div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-emerald-500">
-
-<div class="text-[10px] uppercase font-bold text-slate-400">Trạng Thái 20 Đầu Line</div>
-
-<div class="flex items-baseline justify-between mt-1">
-
-<span id="m-kpi-open-lines" class="font-mono-num text-xl font-black text-emerald-400">16/20</span>
-
-<span id="m-kpi-off-lines" class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">4 Tắt</span>
-
-</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">Click nút nguồn trên line để Bật/Tắt</div>
-
-</div>
-
-
-
-<!-- KPI 2: Sản lượng theo khung giờ / ca đang chọn -->
-
-<div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-cyan-500">
-
-<div id="m-kpi-hour-title" class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Đang Xem</div>
-
-<div class="flex items-baseline gap-1 mt-1">
-
-<span id="m-kpi-hour-vol" class="font-mono-num text-xl font-black text-cyan-400">0</span>
-
-<span class="text-[10px] text-slate-400">kiện</span>
-
-</div>
-
-<div id="m-kpi-hour-label" class="text-[10px] text-cyan-300 font-mono-num mt-0.5 truncate">Khung 10:00 - 11:00</div>
-
-</div>
-
-
-
-<!-- KPI 3: Tổng sản lượng TẤT CẢ CÁC GIỜ -->
-
-<div onclick="selectAllHoursView()" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-blue-500 hover:bg-slate-900 transition" title="Nhấn để xem Tất cả các khung giờ">
-
-<div class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Tất Cả Các Giờ</div>
-
-<div class="flex items-baseline gap-1 mt-1">
-
-<span id="m-kpi-total-vol" class="font-mono-num text-xl font-black text-white">0</span>
-
-<span class="text-[10px] text-slate-400">kiện</span>
-
-</div>
-
-<div class="text-[10px] text-blue-300 mt-0.5">Tổng lũy kế cả 3 Ca (24h)</div>
-
-</div>
-
-
-
-<!-- KPI 4: Tổng số xe đã quét -->
-
-<div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-indigo-500">
-
-<div class="text-[10px] uppercase font-bold text-slate-400">Tổng Xe Đã Quét / Đã Xả</div>
-
-<div class="flex items-baseline gap-1 mt-1">
-
-<span id="m-kpi-trucks-scanned" class="font-mono-num text-xl font-black text-indigo-400">0</span>
-
-<span class="text-[10px] text-slate-400">xe hoàn tất</span>
-
-</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">Cộng dồn từ 20 đầu nhận</div>
-
-</div>
-
-
-
-<!-- KPI 5: SỐ LƯỢNG XE TỒN CHƯA ĐƯỢC XẢ -->
-
-<div onclick="switchPage('dashboard')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-amber-500 hover:bg-slate-900 transition">
-
-<div class="flex items-center justify-between">
-
-<span class="text-[10px] uppercase font-bold text-amber-300">Xe Tồn Chưa Xả</span>
-
-<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-
-</div>
-
-<div class="flex items-baseline gap-1 mt-1">
-
-<span id="m-kpi-trucks-pending" class="font-mono-num text-xl font-black text-amber-400">0</span>
-
-<span class="text-[10px] text-amber-200">xe đang chờ</span>
-
-</div>
-
-<div id="m-kpi-pending-pkgs" class="text-[10px] text-slate-400 font-mono-num mt-0.5">~0 kiện tồn trên xe</div>
-
-</div>
-
-
-
-<!-- KPI 6: Quân số nhân sự đang mở -->
-
-<div onclick="switchPage('crew')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-violet-500 hover:bg-slate-900 transition">
-
-<div class="text-[10px] uppercase font-bold text-slate-400">Nhân Sự Đang Đứng Line</div>
-
-<div class="flex items-baseline justify-between mt-1">
-
-<span id="m-kpi-active-staff" class="font-mono-num text-xl font-black text-violet-400">80/100</span>
-
-<span class="text-[10px] text-slate-400">người</span>
-
-</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">1 Quét + 4 Hỗ trợ / Line Mở</div>
-
-</div>
-
-</div>
-
-
-
-<!-- Thanh Công Cụ Điều Khiển Nhanh Sơ Đồ 20 Đầu Nhận -->
-
-<div class="glass-panel rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
-
-<div class="flex items-center gap-3">
-
-<span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-
-<span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-
-SƠ ĐỒ BĂNG CHUYỀN 20 ĐẦU NHẬN (LINE 01 ➔ LINE 20)
-
-</span>
-
-<div class="hidden sm:flex items-center gap-3 text-[11px] border-l border-slate-700 pl-3">
-
-<span class="flex items-center gap-1 text-emerald-400 font-semibold">
-
-<span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> Line Mở (Hiện Nhân Viên &amp; Chạy Hàng)
-
-</span>
-
-<span class="flex items-center gap-1 text-slate-400 font-semibold">
-
-<span class="w-2.5 h-2.5 rounded bg-rose-600 inline-block"></span> Line Tắt (Đổi Màu Nút &amp; Tắt Nhân Viên)
-
-</span>
-
-</div>
-
-</div>
-
-
-
-<div class="flex items-center gap-1.5">
-
-<button onclick="setAll20LinesStatus(true)" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold transition">
-
-Bật Cả 20 Line
-
-</button>
-
-<button onclick="setAll20LinesStatus(false)" class="px-2.5 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[11px] font-bold transition">
-
-Tắt Toàn Bộ
-
-</button>
-
-<button onclick="triggerApiTick(true)" class="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold shadow transition">
-
-+ Bắn API Tăng Sản Lượng Ngay
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<!-- SƠ ĐỒ BĂNG CHUYỀN CÔNG NGHIỆP 20 ĐẦU NHẬN (10 ĐẦU BẮC + BĂNG CHUYỀN CHÍNH + 10 ĐẦU NAM) -->
-
-<div class="glass-panel rounded-2xl p-3 flex-1 flex flex-col justify-between space-y-2.5 min-h-[540px]">
-
-
-
-<!-- DÃY BẮC: ĐẦU NHẬN LINE 01 -> LINE 10 (Hàng chạy từ trên xuống băng chuyền chính) -->
-
-<div>
-
-<div class="flex items-center justify-between mb-1.5 px-1">
-
-<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-
-▼ DÃY ĐẦU NHẬN BẮC (DOCK 01 ➔ DOCK 10) • Bấm vào nút BẬT/TẮT trên từng Line để đóng/mở đầu nhận
-
-</span>
-
-<span class="text-[10px] font-mono-num text-cyan-400">1 Người Quét + 4 Người Hỗ Trợ / Đầu Line</span>
-
-</div>
-
-<div id="north-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
-
-<!-- Render tự động Line 01 -> Line 10 -->
-
-</div>
-
-</div>
-
-
-
-<!-- BĂNG CHUYỀN TRUNG TÂM HỢP NHẤT (MAIN MERGING CONVEYOR BELT) -->
-
-<div class="relative h-12 rounded-xl belt-main-horizontal border-2 border-cyan-500/50 shadow-inner flex items-center justify-between px-4 overflow-hidden my-1">
-
-<div class="z-10 bg-slate-950/90 border border-cyan-500/40 px-3 py-1 rounded-lg flex items-center gap-2">
-
-<span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-
-<span class="text-[11px] font-extrabold tracking-wider uppercase text-cyan-300">
-
-BĂNG CHUYỀN CHÍNH TRUNG TÂM (20 TELE LINE MERGING BELT)
-
-</span>
-
-</div>
-
-
-
-<div class="z-10 hidden md:flex items-center gap-4 bg-slate-950/90 border border-slate-700 px-3 py-1 rounded-lg text-[11px] font-mono-num">
-
-<span>Lưu lượng hiện tại: <strong id="belt-flow-rate" class="text-emerald-400">0 kiện/giờ</strong></span>
-
-<span>|</span>
-
-<span>Đầu nhận mở: <strong id="belt-open-count" class="text-cyan-300">16/20</strong></span>
-
-</div>
-
-
-
-<div class="z-10 bg-amber-500 text-slate-950 font-extrabold text-[11px] px-3 py-1 rounded-lg shadow flex items-center gap-1">
-
-<span>HƯỚNG RA PHÂN LOẠI (OUTBOUND MATRIX)</span>
-
-<span>➔➔</span>
-
-</div>
-
-</div>
-
-
-
-<!-- DÃY NAM: ĐẦU NHẬN LINE 11 -> LINE 20 (Hàng chạy từ dưới lên băng chuyền chính) -->
-
-<div>
-
-<div id="south-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
-
-<!-- Render tự động Line 11 -> Line 20 -->
-
-</div>
-
-<div class="flex items-center justify-between mt-1.5 px-1">
-
-<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-
-▲ DÃY ĐẦU NHẬN NAM (DOCK 11 ➔ DOCK 20) • Khi Line TẮT: Đổi màu nút sang Đỏ/Xám &amp; Tắt hiển thị Nhân Viên
-
-</span>
-
-<span class="text-[10px] font-mono-num text-amber-400">Click tên nhân viên để sửa nhanh</span>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-</div>
-
-
-
-<!-- CỘT PHẢI TRANG TỔNG: TOP 6 SẢN LƯỢNG GIỜ TỪ API + SẢN LƯỢNG TẤT CẢ CÁC GIỜ + XE TỒN CHƯA XẢ -->
-
-<aside class="w-full xl:w-[410px] 2xl:w-[440px] bg-slate-900/95 border-t xl:border-t-0 xl:border-l border-slate-800 flex flex-col h-full overflow-y-auto p-3 space-y-3 shrink-0">
-
-
-
-<!-- KHỐI 1: TOP 6 LINE CÓ SẢN LƯỢNG MỖI GIỜ CAO NHẤT (DỰA VÀO API CỦA WEB) -->
-
-<div class="glass-panel rounded-xl p-3 border border-amber-500/40 shadow-lg">
-
-<div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5">
-
-<div>
-
-<div class="flex items-center gap-1.5">
-
-<span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">TOP 6 API</span>
-
-<h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">
-
-Sản Lượng Giờ Cao Nhất (Top 6)
-
-</h2>
-
-</div>
-
-<p class="text-[10px] text-slate-400 mt-0.5">
-
-Tự động xếp hạng real-time từ API trong khung giờ đang chọn
-
-</p>
-
-</div>
-
-<span id="top6-slot-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
-
-10:00 - 11:00
-
-</span>
-
-</div>
-
-
-
-<div id="master-top6-list" class="space-y-1.5">
-
-<!-- Render tự động Top 6 Line có sản lượng giờ cao nhất -->
-
-</div>
-
-</div>
-
-
-
-<!-- KHỐI 2: THÔNG SỐ SẢN LƯỢNG TẤT CẢ CÁC GIỜ & GOM 3 CA (6h-15h | 13h-22h | 22h-6h) -->
-
-<div class="glass-panel rounded-xl p-3 border border-slate-800">
-
-<div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-
-<div>
-
-<h2 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">
-
-Sản Lượng Tất Cả Các Giờ (Gom 3 Ca)
-
-</h2>
-
-<p class="text-[10px] text-slate-400">Nhấn vào Tất cả, Ca chính hoặc từng Ca nhỏ để chạy số liệu</p>
-
-</div>
-
-<span id="all-hours-grand-badge" class="text-[11px] font-mono-num font-bold text-emerald-400">
-
-Tổng: 0
-
-</span>
-
-</div>
-
-
-
-<div id="master-all-hours-table" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-
-<!-- Render mục Tất Cả + 3 Ca Chính (6h-15h, 13h-22h, 22h-6h) + Các Ca Nhỏ bên trong -->
-
-</div>
-
-</div>
-
-
-
-<!-- KHỐI 3: SỐ LƯỢNG XE TỒN CHƯA ĐƯỢC XẢ (PENDING TRUCKS QUEUE) -->
-
-<div class="glass-panel rounded-xl p-3 border border-rose-500/30 flex-1 flex flex-col">
-
-<div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-
-<div>
-
-<h2 class="text-xs font-extrabold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
-
-<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-
-Xe Tồn Chưa Được Xả (<span id="sidebar-pending-count">0</span> Xe)
-
-</h2>
-
-<p class="text-[10px] text-slate-400">Xe đang đỗ bãi chờ điều vào đầu nhận mở</p>
-
-</div>
-
-<button onclick="addNewPendingTruck()" class="px-2 py-1 rounded bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[10px] font-bold transition">
-
-+ Thêm Xe Tồn
-
-</button>
-
-</div>
-
-
-
-<div id="master-pending-trucks-list" class="space-y-1.5 overflow-y-auto max-h-52 pr-1">
-
-<!-- Render danh sách xe tồn chưa xả -->
-
-</div>
-
-</div>
-
-
-
-</aside>
-
-</section>
-
-
-
-<!-- ===================================================================== -->
-
-<!-- MODULE 2: CODE NHẬP TÊN NGƯỜI QUÉT (1 NGƯỜI QUÉT + 4 HỖ TRỢ) & LINE -->
-
-<!-- ===================================================================== -->
-
-<section id="page-crew" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-
-<div class="max-w-7xl mx-auto space-y-5 pb-12">
-
-
-
-<!-- Header Quản Lý Nhân Sự 20 Line -->
-
-<div class="glass-panel rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border border-cyan-500/30">
-
-<div>
-
-<div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold mb-1.5">
-
-PHÂN HỆ NHẬP TÊN NGƯỜI QUÉT &amp; ĐIỀU KHIỂN TRẠNG THÁI 20 ĐẦU LINE
-
-</div>
-
-<h2 class="text-lg sm:text-xl font-black text-white">
-
-Quản Lý Nhân Sự 20 Đầu Nhận (1 Người Quét Chính + 4 Người Hỗ Trợ / Line)
-
-</h2>
-
-<p class="text-xs text-slate-400 mt-1">
-
-Khi bạn chuyển trạng thái Line sang <strong>TẮT (ĐÓNG LINE)</strong>, nút trên Trang Tổng sẽ đổi sang màu Đỏ/Xám và <strong>tự động tắt hiển thị nhân viên</strong> của Line đó.
-
-</p>
-
-</div>
-
-
-
-<div class="flex flex-wrap items-center gap-2 shrink-0">
-
-<input id="crew-search-input" oninput="renderCrewManagementPage()" type="text" placeholder="Tìm Line hoặc tên NV..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 w-48">
-
-<select id="crew-filter-status" onchange="renderCrewManagementPage()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-semibold">
-
-<option value="ALL">Tất cả 20 Line</option>
-
-<option value="OPEN">Chỉ Line Đang Mở</option>
-
-<option value="OFF">Chỉ Line Đang Tắt</option>
-
-</select>
-
-<button onclick="randomizeSampleCrew()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700 transition">
-
-Nạp Mẫu 100 Nhân Sự
-
-</button>
-
-<button onclick="saveCrewAllChanges()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-extrabold shadow-lg transition">
-
-Lưu &amp; Đồng Bộ Lên Trang Tổng
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<!-- Bảng Nhập 1 Người Quét + 4 Người Hỗ Trợ Cho 20 Đầu Line -->
-
-<div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-
-<div class="overflow-x-auto">
-
-<table class="w-full text-left border-collapse">
-
-<thead>
-
-<tr class="bg-slate-900 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-
-<th class="py-3 px-3 w-28">Đầu Nhận</th>
-
-<th class="py-3 px-3 w-36">Trạng Thái Line</th>
-
-<th class="py-3 px-3 min-w-[210px] text-cyan-300">1 Người Quét Chính (Scanner PIC)</th>
-
-<th class="py-3 px-3 min-w-[440px] text-emerald-300">4 Người Hỗ Trợ Xả Hàng (Support #1 ➔ #4)</th>
-
-<th class="py-3 px-3 w-28 text-right">Số Xe Đã Quét</th>
-
-<th class="py-3 px-3 w-28 text-right">Định Mức/Giờ</th>
-
-</tr>
-
-</thead>
-
-<tbody id="crew-20lines-tbody" class="divide-y divide-slate-800/80 text-xs">
-
-<!-- Render tự động 20 dòng cho 20 Line -->
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-</section>
-
-
-
-<!-- ===================================================================== -->
-
-<!-- MODULE 3: TRANG ĐỂ CHO API CHẠY (API ENGINE & WEBHOOK CONSOLE) -->
-
-<!-- ===================================================================== -->
-
-<section id="page-api" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-
-<div class="max-w-7xl mx-auto space-y-5 pb-12">
-
-
-
-<!-- Banner Trạng Thái Động Cơ API -->
-
-<div class="glass-panel rounded-2xl p-5 border border-emerald-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-
-<div>
-
-<div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold mb-1.5">
-
-REAL-TIME WMS API ENGINE &amp; WEBHOOK RUNNER
-
-</div>
-
-<h2 class="text-lg sm:text-xl font-black text-white">
-
-Trung Tâm Điều Khiển Luồng Chạy API Hệ Thống (20 Đầu Nhận &amp; Top 6 Hourly)
-
-</h2>
-
-<p class="text-xs text-slate-400 mt-1">
-
-API tự động quét dữ liệu sản lượng cho các Line đang có trạng thái <strong>MỞ (ACTIVE)</strong>, tự động bỏ qua các Line đang <strong>TẮT</strong> và tính toán bảng xếp hạng <strong>Top 6 mỗi giờ</strong>.
-
-</p>
-
-</div>
-
-
-
-<div class="flex flex-wrap items-center gap-2.5 shrink-0">
-
-<button id="api-toggle-btn" onclick="toggleApiEngine()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg flex items-center gap-2 transition">
-
-<span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
-
-<span id="api-toggle-btn-text">API ĐANG CHẠY (NHẤN ĐỂ DỪNG)</span>
-
-</button>
-
-<button onclick="triggerApiTick(true)" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg transition">
-
-⚡ Bắn 1 Chu Kỳ API Ngay
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<!-- Cấu Hình Thông Số API & Giả Lập Sự Kiện Kho -->
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-
-
-<!-- Cột 1: Cấu hình Endpoint & Chu kỳ -->
-
-<div class="glass-panel rounded-2xl p-4 space-y-3 border border-slate-800">
-
-<h3 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">
-
-1. Cấu Hình Kết Nối &amp; Chu Kỳ Chạy API
-
-</h3>
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-semibold mb-1">API Endpoint Hệ Thống Kho (WMS URL)</label>
-
-<input id="api-endpoint-input" type="text" value="https://wms-api.internal.hub/v2/inbound/20-lines/stream" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono-num text-emerald-300">
-
-</div>
-
-<div class="grid grid-cols-2 gap-2">
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-semibold mb-1">Chu Kỳ Quét API</label>
-
-<select id="api-interval-select" onchange="changeApiInterval(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono-num text-white">
-
-<option value="1000">1.0 giây / lần (Siêu nhanh)</option>
-
-<option value="2500" selected>2.5 giây / lần (Tiêu chuẩn)</option>
-
-<option value="5000">5.0 giây / lần (Tiết kiệm)</option>
-
-</select>
-
-</div>
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-semibold mb-1">Khung Giờ API Hiện Tại</label>
-
-<select id="api-hour-select" onchange="changeActiveHour(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono-num text-cyan-300 font-bold">
-
-<!-- Render 8 khung giờ -->
-
-</select>
-
-</div>
-
-</div>
-
-<div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-center">
-
-<div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
-
-<div class="text-[10px] text-slate-400">Tổng Gói Tin Đã Nhận</div>
-
-<div id="api-stat-packets" class="font-mono-num text-base font-black text-emerald-400">128</div>
-
-</div>
-
-<div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
-
-<div class="text-[10px] text-slate-400">Lần Đồng Bộ Cuối</div>
-
-<div id="api-stat-lastsync" class="font-mono-num text-base font-black text-cyan-400">10:07:00</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- Cột 2: Bắn Dữ Liệu API Cho Từng Line & Test Top 6 -->
-
-<div class="glass-panel rounded-2xl p-4 space-y-3 border border-slate-800">
-
-<h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">
-
-2. Bơm Sản Lượng API &amp; Đẩy Line Lên TOP 6
-
-</h3>
-
-<p class="text-[11px] text-slate-400">
-
-Chọn một đầu nhận bất kỳ để bắn lô kiện hàng lớn từ API hoặc cộng thêm số xe đã quét:
-
-</p>
-
-<div class="flex gap-2">
-
-<select id="api-target-line-select" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white">
-
-<!-- Render 20 Line -->
-
-</select>
-
-<button onclick="boostSelectedLineApi(50)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">
-
-+50 Kiện (Đua Top 6)
-
-</button>
-
-</div>
-
-<div class="grid grid-cols-2 gap-2 pt-1">
-
-<button onclick="boostSelectedLineTruck()" class="px-3 py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition">
-
-+1 Xe Đã Quét Cho Line Này
-
-</button>
-
-<button onclick="simulateUnloadPendingTruckViaApi()" class="px-3 py-2 rounded-lg bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white border border-emerald-500/40 text-xs font-bold transition">
-
-Xả Xong 1 Xe Tồn Bãi
-
-</button>
-
-</div>
-
-<div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-
-<span class="text-[11px] text-slate-400">Thao tác dữ liệu giờ hiện tại:</span>
-
-<button onclick="resetActiveHourApiData()" class="px-2.5 py-1 rounded bg-rose-950/80 hover:bg-rose-700 text-rose-300 hover:text-white border border-rose-700/50 text-[11px] font-semibold transition">
-
-Reset Giờ Hiện Tại Về 0
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<!-- Cột 3: Bảng Xếp Hạng Top 6 API Trực Tiếp -->
-
-<div class="glass-panel rounded-2xl p-4 space-y-2 border border-slate-800">
-
-<div class="flex items-center justify-between border-b border-slate-800 pb-2">
-
-<h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
-
-3. Kết Quả Top 6 Sản Lượng Giờ (API Output)
-
-</h3>
-
-<span class="text-[10px] font-mono-num text-slate-400">Real-time Sort</span>
-
-</div>
-
-<div id="api-page-top6-preview" class="space-y-1.5 text-xs">
-
-<!-- Render Top 6 preview -->
-
-</div>
-
-</div>
-
-
-
-</div>
-
-
-
-<!-- Khu Vực Terminal Log & JSON Payload 20 Line -->
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-<!-- Live API Stream Console -->
-
-<div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
-
-<div class="flex items-center justify-between mb-2">
-
-<span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-
-<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-
-Nhật Ký Luồng Chạy API (Live Stream Terminal)
-
-</span>
-
-<button onclick="clearApiLogs()" class="text-[11px] text-slate-400 hover:text-white">Xóa Log</button>
-
-</div>
-
-<div id="api-terminal-log" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono-num text-[11px] text-emerald-400 overflow-y-auto space-y-1">
-
-<!-- Logs -->
-
-</div>
-
-</div>
-
-
-
-<!-- JSON Payload Chuẩn -->
-
-<div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
-
-<div class="flex items-center justify-between mb-2">
-
-<span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">
-
-Cấu Trúc Gói Tin JSON API (20 Đầu Nhận + Top 6 + Xe Tồn)
-
-</span>
-
-<button onclick="copyApiJson()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white text-[11px] font-bold border border-slate-700 transition">
-
-Copy JSON
-
-</button>
-
-</div>
-
-<pre id="api-json-inspector" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono-num text-[11px] text-cyan-300 overflow-auto leading-relaxed"></pre>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-</section>
-
-
-
-<!-- ===================================================================== -->
-
-<!-- MODULE 4: TRANG DASHBOARD RIÊNG CHI TIẾT (LINE • XE • NHÂN VIÊN) -->
-
-<!-- ===================================================================== -->
-
-<section id="page-dashboard" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-
-<div class="max-w-7xl mx-auto space-y-6 pb-14">
-
-
-
-<!-- 1. DẢI THẺ TỔNG HỢP NHÂN SỰ, SẢN LƯỢNG & PHƯƠNG TIỆN -->
-
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-
-<div class="glass-panel p-3.5 rounded-2xl border border-slate-800">
-
-<div class="text-[10px] font-bold uppercase text-slate-400">Tổng Số Nhân Viên (20 Line)</div>
-
-<div id="db-kpi-total-staff" class="font-mono-num text-2xl font-black text-white mt-1">100</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">20 Quét chính + 80 Hỗ trợ</div>
-
-</div>
-
-<div class="glass-panel p-3.5 rounded-2xl border border-emerald-500/30">
-
-<div class="text-[10px] font-bold uppercase text-emerald-400">Nhân Viên Đang Hoạt Động</div>
-
-<div id="db-kpi-active-staff" class="font-mono-num text-2xl font-black text-emerald-400 mt-1">80</div>
-
-<div id="db-kpi-inactive-staff" class="text-[10px] text-slate-400 mt-0.5">20 NV nghỉ do Line Tắt</div>
-
-</div>
-
-<div class="glass-panel p-3.5 rounded-2xl border border-cyan-500/30">
-
-<div class="text-[10px] font-bold uppercase text-cyan-400">Tổng Sản Lượng Toàn Ca</div>
-
-<div id="db-kpi-grand-vol" class="font-mono-num text-2xl font-black text-cyan-400 mt-1">0</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">Kiện hàng qua 20 đầu nhận</div>
-
-</div>
-
-<div class="glass-panel p-3.5 rounded-2xl border border-indigo-500/30">
-
-<div class="text-[10px] font-bold uppercase text-indigo-400">Các Xe Đã Được Xả</div>
-
-<div id="db-kpi-completed-trucks" class="font-mono-num text-2xl font-black text-indigo-400 mt-1">0</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">Xe đã quét hoàn tất</div>
-
-</div>
-
-<div class="glass-panel p-3.5 rounded-2xl border border-amber-500/40">
-
-<div class="text-[10px] font-bold uppercase text-amber-400">Các Xe Chưa Xả (Tồn)</div>
-
-<div id="db-kpi-pending-trucks" class="font-mono-num text-2xl font-black text-amber-400 mt-1">0</div>
-
-<div class="text-[10px] text-amber-200/80 mt-0.5">Đang chờ bãi / chờ cổng</div>
-
-</div>
-
-<div class="glass-panel p-3.5 rounded-2xl border border-violet-500/30">
-
-<div class="text-[10px] font-bold uppercase text-violet-400">Năng Suất Bình Quân / NV</div>
-
-<div id="db-kpi-avg-staff" class="font-mono-num text-2xl font-black text-violet-400 mt-1">0</div>
-
-<div class="text-[10px] text-slate-400 mt-0.5">Kiện / nhân sự active</div>
-
-</div>
-
-</div>
-
-
-
-<!-- 2. BẢNG CHI TIẾT THÔNG SỐ CỦA CẢ 20 LINE (SẢN LƯỢNG TẤT CẢ CÁC GIỜ & SỐ XE) -->
-
-<div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
-
-<div class="px-5 py-3.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
-
-<div>
-
-<h3 class="text-sm font-extrabold uppercase tracking-wider text-cyan-400">
-
-A. Bảng Chi Tiết Thông Số Sản Lượng 20 Line (Theo 3 Ca Chính &amp; Từng Khung Giờ Nhỏ)
-
-</h3>
-
-<p class="text-[11px] text-slate-400">
-
-Hiển thị đầy đủ sản lượng các ca nhỏ, tổng từng ca chính (6h-15h • 13h-22h • 22h-6h), số xe đã xả và nhân sự
-
-</p>
-
-</div>
-
-<div class="flex items-center gap-2">
-
-<span class="text-[11px] text-slate-400 font-semibold">Chế độ xem bảng:</span>
-
-<select id="db-table-shift-filter" onchange="changeDashboardTableShiftFilter(this.value)" class="bg-slate-950 border border-cyan-500/50 rounded-lg px-3 py-1.5 text-xs font-bold text-cyan-300">
-
-<option value="ALL_SHIFTS">Tổng Hợp Cả 3 Ca (Tất Cả Khung Giờ)</option>
-
-<option value="SHIFT_1">Chi Tiết Ca 1 (06:00 - 15:00)</option>
-
-<option value="SHIFT_2">Chi Tiết Ca 2 (13:00 - 22:00)</option>
-
-<option value="SHIFT_3">Chi Tiết Ca 3 (22:00 - 06:00)</option>
-
-</select>
-
-</div>
-
-</div>
-
-<div class="overflow-x-auto max-h-[440px]">
-
-<table class="w-full text-left border-collapse text-xs">
-
-<thead id="db-20lines-detail-thead" class="sticky top-0 bg-slate-900 z-10 shadow">
-
-<!-- Render động theo chế độ xem Tất cả 3 ca hoặc từng Ca chính -->
-
-</thead>
-
-<tbody id="db-20lines-detail-tbody" class="divide-y divide-slate-800/70 font-mono-num">
-
-<!-- Render 20 Line chi tiết -->
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-
-<!-- 3. QUẢN LÝ CHI TIẾT CÁC XE CHƯA XẢ (TỒN) & CÁC XE ĐÃ ĐƯỢC XẢ -->
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-
-
-<!-- Cột Trái: Danh sách các xe CHƯA XẢ (Xe tồn bãi) -->
-
-<div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/40 flex flex-col">
-
-<div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-
-<div>
-
-<h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">
-
-B1. Danh Sách Các Xe Chưa Xả (Xe Tồn Bãi)
-
-</h3>
-
-<p class="text-[10px] text-slate-400">Bấm "Xả Xe" để phân bổ xe tồn vào Line đang mở và cộng sản lượng</p>
-
-</div>
-
-<button onclick="addNewPendingTruck()" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition">
-
-+ Thêm Xe Mới Đến
-
-</button>
-
-</div>
-
-<div class="overflow-x-auto max-h-80">
-
-<table class="w-full text-left border-collapse text-xs">
-
-<thead class="bg-slate-900/70 text-[10px] uppercase text-slate-400 border-b border-slate-800">
-
-<tr>
-
-<th class="py-2 px-3">Mã / Biển Số</th>
-
-<th class="py-2 px-2">Loại Xe</th>
-
-<th class="py-2 px-2 text-right">Số Kiện</th>
-
-<th class="py-2 px-2">Chờ Tại</th>
-
-<th class="py-2 px-3 text-right">Điều Phối Xả</th>
-
-</tr>
-
-</thead>
-
-<tbody id="db-pending-trucks-tbody" class="divide-y divide-slate-800/70">
-
-<!-- Render xe chưa xả -->
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-
-<!-- Cột Phải: Danh sách các xe ĐÃ ĐƯỢC XẢ -->
-
-<div class="glass-panel rounded-2xl overflow-hidden border border-emerald-500/30 flex flex-col">
-
-<div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-
-<div>
-
-<h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">
-
-B2. Danh Sách Các Xe Đã Được Xả (Hoàn Tất)
-
-</h3>
-
-<p class="text-[10px] text-slate-400">Lịch sử các xe đã quét và dỡ hàng xong tại 20 đầu nhận</p>
-
-</div>
-
-<span id="db-completed-badge" class="text-xs font-mono-num font-bold text-emerald-300">0 chuyến</span>
-
-</div>
-
-<div class="overflow-x-auto max-h-80">
-
-<table class="w-full text-left border-collapse text-xs">
-
-<thead class="bg-slate-900/70 text-[10px] uppercase text-slate-400 border-b border-slate-800">
-
-<tr>
-
-<th class="py-2 px-3">Mã / Biển Số</th>
-
-<th class="py-2 px-2">Đầu Line Xả</th>
-
-<th class="py-2 px-2">Người Quét Chính</th>
-
-<th class="py-2 px-2 text-right">Sản Lượng</th>
-
-<th class="py-2 px-3 text-right">Giờ Xong</th>
-
-</tr>
-
-</thead>
-
-<tbody id="db-completed-trucks-tbody" class="divide-y divide-slate-800/70">
-
-<!-- Render xe đã xả -->
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-
-
-<!-- 4. BẢNG THÔNG SỐ CHI TIẾT CỦA CÁC NHÂN VIÊN (100 NHÂN SỰ: 20 QUÉT + 80 HỖ TRỢ) -->
-
-<div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
-
-<div class="px-5 py-3.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
-
-<div>
-
-<h3 class="text-sm font-extrabold uppercase tracking-wider text-violet-400">
-
-C. Bảng Thông Số Chi Tiết Của Các Nhân Viên (Tổng 100 Nhân Sự: 20 Người Quét &amp; 80 Người Hỗ Trợ)
-
-</h3>
-
-<p class="text-[11px] text-slate-400">
-
-Theo dõi trạng thái làm việc thực tế, vai trò (Quét chính / Hỗ trợ 1-4) và sản lượng đóng góp của từng nhân viên
-
-</p>
-
-</div>
-
-<div class="flex items-center gap-2">
-
-<select id="db-staff-role-filter" onchange="renderDashboardStaffTable()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-semibold">
-
-<option value="ALL">Tất cả vai trò (100 NV)</option>
-
-<option value="SCANNER">Chỉ Người Quét Chính (20 NV)</option>
-
-<option value="SUPPORT">Chỉ Người Hỗ Trợ (80 NV)</option>
-
-</select>
-
-<select id="db-staff-state-filter" onchange="renderDashboardStaffTable()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-semibold">
-
-<option value="ALL">Mọi trạng thái</option>
-
-<option value="ACTIVE">Đang làm việc (Line Mở)</option>
-
-<option value="OFF">Tạm ngưng (Line Tắt)</option>
-
-</select>
-
-</div>
-
-</div>
-
-<div class="overflow-x-auto max-h-96">
-
-<table class="w-full text-left border-collapse text-xs">
-
-<thead class="sticky top-0 bg-slate-900 z-10">
-
-<tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-
-<th class="py-2.5 px-3">Mã NV</th>
-
-<th class="py-2.5 px-3">Họ Và Tên Nhân Viên</th>
-
-<th class="py-2.5 px-3">Vai Trò Tại Đầu Nhận</th>
-
-<th class="py-2.5 px-3">Thuộc Đầu Line</th>
-
-<th class="py-2.5 px-3">Trạng Thái Hoạt Động</th>
-
-<th class="py-2.5 px-3 text-right">Sản Lượng Line (Giờ)</th>
-
-<th class="py-2.5 px-3 text-right">Sản Lượng Tổ (Cả Ca)</th>
-
-</tr>
-
-</thead>
-
-<tbody id="db-staff-detail-tbody" class="divide-y divide-slate-800/70">
-
-<!-- Render danh sách 100 nhân viên -->
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-
-</div>
-
-</section>
-
-
-
-</main>
-
-
-
-<!-- ==================== MODAL CHỈNH SỬA NHANH 1 ĐẦU LINE (1 QUÉT + 4 HỖ TRỢ) ==================== -->
-
-<div id="quick-edit-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-
-<div class="glass-panel rounded-2xl max-w-lg w-full p-5 border border-cyan-500/50 shadow-2xl space-y-4">
-
-<div class="flex items-center justify-between border-b border-slate-800 pb-3">
-
-<div>
-
-<h3 id="modal-line-title" class="text-base font-black text-cyan-400 uppercase">Cấu Hình LINE 01</h3>
-
-<p class="text-xs text-slate-400">Chỉnh trạng thái Bật/Tắt Line, 1 Người Quét và 4 Người Hỗ Trợ</p>
-
-</div>
-
-<button onclick="closeQuickEditModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2">✕</button>
-
-</div>
-
-
-
-<div class="space-y-3 text-xs">
-
-<div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800">
-
-<div>
-
-<div class="font-bold text-white">Trạng Thái Hoạt Động Của Đầu Line</div>
-
-<div class="text-[11px] text-slate-400">Nếu TẮT, nút trên Trang Tổng đổi màu và ẩn nhân sự</div>
-
-</div>
-
-<button id="modal-toggle-status-btn" onclick="toggleModalLineStatus()" class="px-4 py-2 rounded-xl font-extrabold text-xs transition">
-
-ĐANG MỞ
-
-</button>
-
-</div>
-
-
-
-<div class="grid grid-cols-3 gap-2">
-
-<div class="col-span-2">
-
-<label class="block text-[11px] text-cyan-300 font-bold mb-1">1. Người Quét Chính (Scanner PIC)</label>
-
-<input id="modal-scanner-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold">
-
-</div>
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-bold mb-1">Mã NV Quét</label>
-
-<input id="modal-scanner-id" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono-num">
-
-</div>
-
-</div>
-
-
-
-<div>
-
-<label class="block text-[11px] text-emerald-300 font-bold mb-1">2. Danh Sách 4 Người Hỗ Trợ Xả Hàng (Support Crew #1 ➔ #4)</label>
-
-<div class="grid grid-cols-2 gap-2">
-
-<input id="modal-sup-0" type="text" placeholder="Hỗ trợ 1" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
-
-<input id="modal-sup-1" type="text" placeholder="Hỗ trợ 2" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
-
-<input id="modal-sup-2" type="text" placeholder="Hỗ trợ 3" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
-
-<input id="modal-sup-3" type="text" placeholder="Hỗ trợ 4" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
-
-</div>
-
-</div>
-
-
-
-<div class="grid grid-cols-2 gap-2">
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-bold mb-1">Số Xe Đã Quét Tại Line</label>
-
-<input id="modal-trucks-scanned" type="number" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono-num">
-
-</div>
-
-<div>
-
-<label class="block text-[11px] text-slate-400 font-bold mb-1">Định Mức Giờ (Kiện/h)</label>
-
-<input id="modal-target-hour" type="number" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-mono-num">
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-
-<button onclick="closeQuickEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Hủy</button>
-
-<button onclick="saveQuickEditModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg">Lưu Thay Đổi</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- ==================== THÔNG BÁO TOAST ==================== -->
-
-<div id="sys-toast" class="fixed bottom-4 right-4 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
-
-<div class="bg-slate-900/95 border border-cyan-500/60 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs">
-
-<span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-
-<span id="sys-toast-msg" class="font-bold">Đã cập nhật hệ thống!</span>
-
-</div>
-
-</div>
-
-
-
-<!-- ==================== CORE JAVASCRIPT ENGINE ==================== -->
-
-<script>
-
-const STORAGE_KEY = 'INBOUND_20LINES_ENTERPRISE_V2';
-
-
-
-// Cấu trúc 3 Ca Chính và các Ca Nhỏ (khung giờ từng tiếng) bên trong
-
-const SHIFT_DEFINITIONS = [
-
-{
-
-id: 'SHIFT_1',
-
-name: 'Ca 1: 06h - 15h',
-
-fullName: 'Ca 1 (06:00 - 15:00)',
-
-badgeColor: 'text-cyan-300 bg-cyan-500/15 border-cyan-500/30',
-
-activeBorder: 'border-cyan-400 bg-cyan-950/60',
-
-slotIndices: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-
-},
-
-{
-
-id: 'SHIFT_2',
-
-name: 'Ca 2: 13h - 22h',
-
-fullName: 'Ca 2 (13:00 - 22:00)',
-
-badgeColor: 'text-amber-300 bg-amber-500/15 border-amber-500/30',
-
-activeBorder: 'border-amber-400 bg-amber-950/60',
-
-slotIndices: [9, 10, 11, 12, 13, 14, 15, 16, 17]
-
-},
-
-{
-
-id: 'SHIFT_3',
-
-name: 'Ca 3: 22h - 06h',
-
-fullName: 'Ca 3 (22:00 - 06:00)',
-
-badgeColor: 'text-violet-300 bg-violet-500/15 border-violet-500/30',
-
-activeBorder: 'border-violet-400 bg-violet-950/60',
-
-slotIndices: [18, 19, 20, 21, 22, 23, 24, 25]
-
-}
-
-];
-
-
-
-const MASTER_HOUR_SLOTS = [
-
-// Ca 1: 06h đến 15h (9 ca nhỏ: index 0 -> 8)
-
-'06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00',
-
-'09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00',
-
-'12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00',
-
-// Ca 2: 13h đến 22h (9 ca nhỏ: index 9 -> 17)
-
-'13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
-
-'16:00 - 17:00', '17:00 - 18:00', '18:00 - 19:00',
-
-'19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
-
-// Ca 3: 22h đến 06h (8 ca nhỏ: index 18 -> 25)
-
-'22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00',
-
-'01:00 - 02:00', '02:00 - 03:00', '03:00 - 04:00',
-
-'04:00 - 05:00', '05:00 - 06:00'
-
-];
-
-
-
-// Dữ liệu họ tên mẫu tiếng Việt để tạo 20 Người Quét + 80 Người Hỗ Trợ chuẩn xác
-
-const SAMPLE_SCANNERS = [
-
-'Nguyễn Văn Hùng', 'Lê Thị Mỹ Duyên', 'Phạm Hoàng Nam', 'Võ Minh Tuấn', 'Đặng Quốc Khánh',
-
-'Trần Bảo Ngọc', 'Hoàng Gia Bảo', 'Bùi Thanh Tùng', 'Ngô Thị Phương', 'Đỗ Minh Đức',
-
-'Lý Quốc Cường', 'Phan Thành Đạt', 'Vũ Thị Mai Anh', 'Đinh Trọng Nghĩa', 'Trương Công Minh',
-
-'Mai Xuân Trường', 'Hồ Thị Kim Ngân', 'Dương Quốc Việt', 'Lương Thế Vinh', 'Tạ Minh Quân'
-
-];
-
-
-
-const LAST_NAMES = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ'];
-
-const MID_NAMES = ['Văn', 'Minh', 'Quốc', 'Thanh', 'Đức', 'Thành', 'Hữu', 'Gia', 'Xuân', 'Ngọc'];
-
-const FIRST_NAMES = ['An', 'Bình', 'Cường', 'Dũng', 'Hải', 'Hiếu', 'Khoa', 'Lâm', 'Long', 'Phúc', 'Sơn', 'Tâm', 'Thắng', 'Thịnh', 'Toàn', 'Trung', 'Tú', 'Việt', 'Vinh', 'Kiên'];
-
-
-
-function generateSupportCrew(lineIdx) {
-
-const crew = [];
-
-for (let s = 0; s < 4; s++) {
-
-const seed = lineIdx * 4 + s;
-
-const ln = LAST_NAMES[seed % LAST_NAMES.length];
-
-const mn = MID_NAMES[(seed * 3) % MID_NAMES.length];
-
-const fn = FIRST_NAMES[(seed * 7) % FIRST_NAMES.length];
-
-crew.push(`${ln} ${mn} ${fn}`);
-
-}
-
-return crew;
-
-}
-
-
-
-function createDefaultState() {
-
-// Khởi tạo 20 đầu nhận (Line 01 -> Line 20)
-
-// Mặc định mở 16 line, tắt 4 line (Line 04, Line 09, Line 14, Line 19)
-
-const closedDefaultIndices = [3, 8, 13, 18];
-
-const lines = [];
-
-
-
-for (let i = 0; i < 20; i++) {
-
-const lineNum = String(i + 1).padStart(2, '0');
-
-const isOpen = !closedDefaultIndices.includes(i);
-
-
-
-// Tạo dữ liệu mẫu cho 26 ca nhỏ thuộc 3 Ca Chính
-
-const baseCounts = MASTER_HOUR_SLOTS.map((_, slotIdx) => {
-
-// Ca 1 (index 0..8)
-
-if (slotIdx <= 4) {
-
-if (slotIdx === 4) return isOpen ? (195 + ((i * 31) % 110)) : 45;
-
-return 150 + ((i * 19 + slotIdx * 13) % 85);
-
-}
-
-if (slotIdx <= 8) {
-
-return 120 + ((i * 17 + slotIdx * 11) % 70);
-
-}
-
-// Ca 2 (index 9..17)
-
-if (slotIdx <= 17) {
-
-return 135 + ((i * 23 + slotIdx * 7) % 80);
-
-}
-
-// Ca 3 (index 18..25)
-
-return 95 + ((i * 13 + slotIdx * 9) % 60);
-
-});
-
-
-
-lines.push({
-
-id: `LINE-${lineNum}`,
-
-code: `L${lineNum}`,
-
-name: `LINE ${lineNum}`,
-
-isOpen: isOpen,
-
-scannerName: SAMPLE_SCANNERS[i],
-
-scannerId: `NV-${101 + i}`,
-
-supporters: generateSupportCrew(i),
-
-targetPerHour: 240,
-
-trucksScanned: isOpen ? (3 + (i % 4)) : (1 + (i % 2)),
-
-hourlyCounts: baseCounts
-
-});
-
-}
-
-
-
-// Danh sách xe tồn chưa được xả (Pending Trucks)
-
-const pendingTrucks = [
-
-{ id: 'TRK-801', plate: '51C-884.12', type: 'Cont 40ft', estBoxes: 1450, waitTime: '42 phút', gate: 'Bãi Chờ A1', priority: 'HIGH' },
-
-{ id: 'TRK-802', plate: '29H-409.55', type: 'Cont 40ft', estBoxes: 1320, waitTime: '35 phút', gate: 'Bãi Chờ A2', priority: 'HIGH' },
-
-{ id: 'TRK-803', plate: '60C-512.89', type: 'Cont 20ft', estBoxes: 780, waitTime: '28 phút', gate: 'Bãi Chờ B1', priority: 'NORMAL' },
-
-{ id: 'TRK-804', plate: '61H-198.34', type: 'Tải 15 Tấn', estBoxes: 920, waitTime: '21 phút', gate: 'Bãi Chờ B2', priority: 'NORMAL' },
-
-{ id: 'TRK-805', plate: '51D-773.01', type: 'Cont 40ft', estBoxes: 1510, waitTime: '16 phút', gate: 'Cổng Nhận 2', priority: 'HIGH' },
-
-{ id: 'TRK-806', plate: '43C-229.67', type: 'Tải 8 Tấn', estBoxes: 540, waitTime: '12 phút', gate: 'Cổng Nhận 4', priority: 'NORMAL' },
-
-{ id: 'TRK-807', plate: '65C-310.44', type: 'Cont 20ft', estBoxes: 810, waitTime: '06 phút', gate: 'Bãi Chờ C1', priority: 'NORMAL' }
-
-];
-
-
-
-// Danh sách xe đã xả hoàn tất mẫu (Completed Trucks)
-
-const completedTrucks = [
-
-{ id: 'TRK-791', plate: '51C-332.10', lineName: 'LINE 01', scanner: SAMPLE_SCANNERS[0], boxes: 1280, completedAt: '09:42:15' },
-
-{ id: 'TRK-792', plate: '60H-991.20', lineName: 'LINE 03', scanner: SAMPLE_SCANNERS[2], boxes: 1410, completedAt: '09:50:08' },
-
-{ id: 'TRK-793', plate: '29C-665.81', lineName: 'LINE 12', scanner: SAMPLE_SCANNERS[11], boxes: 960, completedAt: '09:58:40' },
-
-{ id: 'TRK-794', plate: '51D-118.09', lineName: 'LINE 07', scanner: SAMPLE_SCANNERS[6], boxes: 1340, completedAt: '10:02:19' },
-
-{ id: 'TRK-795', plate: '61C-450.77', lineName: 'LINE 15', scanner: SAMPLE_SCANNERS[14], boxes: 1190, completedAt: '10:05:51' }
-
-];
-
-
-
-return {
-
-activePage: 'master',
-
-activeHourIndex: 4, // Mặc định ca nhỏ 10:00 - 11:00 thuộc Ca 1
-
-viewMode: 'SLOT', // 'ALL' (Tất cả khung giờ) | 'SHIFT' (Tổng theo Ca chính) | 'SLOT' (Theo từng ca nhỏ)
-
-activeShiftId: 'SHIFT_1',
-
-expandedShifts: { SHIFT_1: true, SHIFT_2: false, SHIFT_3: false },
-
-dashboardTableShiftFilter: 'ALL_SHIFTS',
-
-hourSlots: MASTER_HOUR_SLOTS,
-
-apiRunning: true,
-
-apiIntervalMs: 2500,
-
-apiPacketsCount: 142,
-
-lastSyncTime: '10:07:00',
-
-lines: lines,
-
-pendingTrucks: pendingTrucks,
-
-completedTrucks: completedTrucks
-
-};
-
-}
-
-
-
-let state = loadState();
-
-let apiTimerId = null;
-
-let apiLogs = [];
-
-let editingLineIdx = null;
-
-
-
-function loadState() {
-
-try {
-
-const raw = localStorage.getItem(STORAGE_KEY);
-
-if (raw) {
-
-const parsed = JSON.parse(raw);
-
-if (
-
-parsed &&
-
-Array.isArray(parsed.lines) &&
-
-parsed.lines.length === 20 &&
-
-Array.isArray(parsed.lines[0].hourlyCounts) &&
-
-parsed.lines[0].hourlyCounts.length === MASTER_HOUR_SLOTS.length
-
-) {
-
-if (!parsed.viewMode) parsed.viewMode = 'SLOT';
-
-if (!parsed.activeShiftId) parsed.activeShiftId = 'SHIFT_1';
-
-if (!parsed.expandedShifts) parsed.expandedShifts = { SHIFT_1: true, SHIFT_2: false, SHIFT_3: false };
-
-if (!parsed.dashboardTableShiftFilter) parsed.dashboardTableShiftFilter = 'ALL_SHIFTS';
-
-parsed.hourSlots = MASTER_HOUR_SLOTS;
-
-return parsed;
-
-}
-
-}
-
-} catch (e) {}
-
-return createDefaultState();
-
-}
-
-
-
-function saveState() {
-
-try {
-
-localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-} catch (e) {}
-
-}
-
-
-
-function fmt(n) {
-
-return Number(n || 0).toLocaleString('en-US');
-
-}
-
-
-
-// ==================== CÁC HÀM TÍNH TOÁN THỐNG KÊ THEO CA NHỎ / CA CHÍNH / TẤT CẢ ====================
-
-function getShiftDef(shiftId) {
-
-return SHIFT_DEFINITIONS.find(s => s.id === shiftId) || SHIFT_DEFINITIONS[0];
-
-}
-
-
-
-function getShiftForSlotIndex(slotIdx) {
-
-return SHIFT_DEFINITIONS.find(s => s.slotIndices.includes(slotIdx)) || SHIFT_DEFINITIONS[0];
-
-}
-
-
-
-// Sản lượng 1 ca nhỏ (1 khung giờ) của 1 Line
-
-function getLineSlotVol(line, slotIdx = state.activeHourIndex) {
-
-return Number(line.hourlyCounts[slotIdx] || 0);
-
-}
-
-
-
-// Tổng sản lượng các ca nhỏ trong 1 Ca Chính của 1 Line
-
-function getLineShiftVol(line, shiftId = state.activeShiftId) {
-
-const shift = getShiftDef(shiftId);
-
-return shift.slotIndices.reduce((sum, idx) => sum + getLineSlotVol(line, idx), 0);
-
-}
-
-
-
-// Tổng sản lượng TẤT CẢ các khung giờ (toàn bộ 3 ca) của 1 Line
-
-function getLineTotalVol(line) {
-
-return line.hourlyCounts.reduce((a, b) => a + (Number(b) || 0), 0);
-
-}
-
-
-
-// Sản lượng của 1 Line theo chế độ đang chọn (TẤT CẢ / CA CHÍNH / CA NHỎ)
-
-function getLineHourVol(line, customSlotIdx = null) {
-
-if (customSlotIdx !== null) {
-
-return getLineSlotVol(line, customSlotIdx);
-
-}
-
-if (state.viewMode === 'ALL') {
-
-return getLineTotalVol(line);
-
-}
-
-if (state.viewMode === 'SHIFT') {
-
-return getLineShiftVol(line, state.activeShiftId);
-
-}
-
-return getLineSlotVol(line, state.activeHourIndex);
-
-}
-
-
-
-// Tổng sản lượng 20 Line cho 1 ca nhỏ cụ thể
-
-function getSlotTotalAllLines(slotIdx = state.activeHourIndex) {
-
-return state.lines.reduce((sum, l) => sum + getLineSlotVol(l, slotIdx), 0);
-
-}
-
-
-
-// Tổng sản lượng 20 Line cho 1 Ca Chính (tổng các ca nhỏ trong ca đó)
-
-function getShiftTotalAllLines(shiftId) {
-
-const shift = getShiftDef(shiftId);
-
-return shift.slotIndices.reduce((sum, idx) => sum + getSlotTotalAllLines(idx), 0);
-
-}
-
-
-
-// Tổng sản lượng 20 Line theo chế độ đang xem hiện tại
-
-function getHourTotalAllLines(customSlotIdx = null) {
-
-if (customSlotIdx !== null) {
-
-return getSlotTotalAllLines(customSlotIdx);
-
-}
-
-if (state.viewMode === 'ALL') {
-
-return getGrandTotalAllHours();
-
-}
-
-if (state.viewMode === 'SHIFT') {
-
-return getShiftTotalAllLines(state.activeShiftId);
-
-}
-
-return getSlotTotalAllLines(state.activeHourIndex);
-
-}
-
-
-
-function getGrandTotalAllHours() {
-
-return state.lines.reduce((sum, l) => sum + getLineTotalVol(l), 0);
-
-}
-
-
-
-function getTotalScannedTrucks() {
-
-return state.lines.reduce((sum, l) => sum + (Number(l.trucksScanned) || 0), 0);
-
-}
-
-
-
-// Nhãn mô tả chế độ đang xem (Tất cả / Ca chính / Ca nhỏ)
-
-function getActiveViewDisplayLabel() {
-
-if (state.viewMode === 'ALL') {
-
-return 'Tất Cả Khung Giờ (3 Ca)';
-
-}
-
-if (state.viewMode === 'SHIFT') {
-
-const sh = getShiftDef(state.activeShiftId);
-
-return `${sh.fullName}`;
-
-}
-
-const sh = getShiftForSlotIndex(state.activeHourIndex);
-
-return `${sh.name.split(':')[0]} • ${state.hourSlots[state.activeHourIndex]}`;
-
-}
-
-
-
-// Tính TOP 6 Line có sản lượng cao nhất từ API theo chế độ đang xem (Ca nhỏ / Ca chính / Tất cả)
-
-function getTop6LinesForActiveHour() {
-
-return state.lines
-
-.map((line, idx) => ({
-
-idx: idx,
-
-id: line.id,
-
-name: line.name,
-
-code: line.code,
-
-isOpen: line.isOpen,
-
-scannerName: line.scannerName,
-
-trucksScanned: line.trucksScanned,
-
-hourVol: getLineHourVol(line),
-
-totalVol: getLineTotalVol(line),
-
-target: line.targetPerHour
-
-}))
-
-.sort((a, b) => b.hourVol - a.hourVol)
-
-.slice(0, 6);
-
-}
-
-
-
-// ==================== CHỌN MỤC TẤT CẢ / CA CHÍNH / CA NHỎ ====================
-
-function selectAllHoursView() {
-
-state.viewMode = 'ALL';
-
-saveState();
-
-renderAll();
-
-showToast('Đang chạy tổng số liệu TẤT CẢ CÁC KHUNG GIỜ (Cả 3 Ca)!');
-
-}
-
-
-
-function selectMainShiftView(shiftId) {
-
-const shift = getShiftDef(shiftId);
-
-state.viewMode = 'SHIFT';
-
-state.activeShiftId = shiftId;
-
-// Mở danh sách ca nhỏ của ca chính này
-
-state.expandedShifts[shiftId] = true;
-
-// Đảm bảo activeHourIndex nằm trong ca chính này để API tiếp tục cộng số live
-
-if (!shift.slotIndices.includes(state.activeHourIndex)) {
-
-state.activeHourIndex = shift.slotIndices[0];
-
-}
-
-saveState();
-
-renderAll();
-
-showToast(`Đang chạy tổng số các ca nhỏ của ${shift.fullName}!`);
-
-}
-
-
-
-function toggleShiftAccordion(event, shiftId) {
-
-event.stopPropagation();
-
-state.expandedShifts[shiftId] = !state.expandedShifts[shiftId];
-
-saveState();
-
-renderMasterPage();
-
-}
-
-
-
-// ==================== CHUYỂN ĐỔI GIỮA 4 PHÂN HỆ ====================
-
-function switchPage(page) {
-
-state.activePage = page;
-
-const pages = ['master', 'crew', 'api', 'dashboard'];
-
-pages.forEach(p => {
-
-const sec = document.getElementById(`page-${p}`);
-
-const nav = document.getElementById(`nav-${p}`);
-
-if (sec) sec.classList.toggle('hidden', p !== page);
-
-if (nav) {
-
-nav.className = p === page
-
-? 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow'
-
-: 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800';
-
-}
-
-});
-
-renderAll();
-
-}
-
-
-
-// ==================== RENDER PHÂN HỆ 1: TRANG TỔNG 20 ĐẦU NHẬN ====================
-
-function renderMasterPage() {
-
-const openLinesCount = state.lines.filter(l => l.isOpen).length;
-
-const offLinesCount = 20 - openLinesCount;
-
-const currentViewVol = getHourTotalAllLines();
-
-const grandTotalVol = getGrandTotalAllHours();
-
-const totalTrucksScanned = getTotalScannedTrucks();
-
-const pendingTrucksCount = state.pendingTrucks.length;
-
-const pendingEstBoxes = state.pendingTrucks.reduce((s, t) => s + t.estBoxes, 0);
-
-const activeStaffCount = openLinesCount * 5; // 1 người quét + 4 người hỗ trợ = 5 người/line
-
-
-
-const activeDisplayLabel = getActiveViewDisplayLabel();
-
-
-
-// Cập nhật KPI đỉnh
-
-document.getElementById('m-kpi-open-lines').textContent = `${openLinesCount}/20`;
-
-document.getElementById('m-kpi-off-lines').textContent = `${offLinesCount} Đã Tắt`;
-
-
-
-const kpiHourTitle = document.getElementById('m-kpi-hour-title');
-
-if (kpiHourTitle) {
-
-kpiHourTitle.textContent = state.viewMode === 'ALL'
-
-? 'Tổng Tất Cả Khung Giờ'
-
-: (state.viewMode === 'SHIFT' ? 'Tổng Sản Lượng Ca Chính' : 'Sản Lượng Ca Nhỏ (Giờ)');
-
-}
-
-document.getElementById('m-kpi-hour-vol').textContent = fmt(currentViewVol);
-
-document.getElementById('m-kpi-hour-label').textContent = activeDisplayLabel;
-
-document.getElementById('m-kpi-total-vol').textContent = fmt(grandTotalVol);
-
-document.getElementById('m-kpi-trucks-scanned').textContent = fmt(totalTrucksScanned);
-
-document.getElementById('m-kpi-trucks-pending').textContent = fmt(pendingTrucksCount);
-
-document.getElementById('m-kpi-pending-pkgs').textContent = `~${fmt(pendingEstBoxes)} kiện chờ xả`;
-
-document.getElementById('m-kpi-active-staff').textContent = `${activeStaffCount}/100`;
-
-
-
-document.getElementById('belt-flow-rate').textContent = `${fmt(currentViewVol)} kiện (${activeDisplayLabel})`;
-
-document.getElementById('belt-open-count').textContent = `${openLinesCount}/20 Line Mở`;
-
-document.getElementById('header-active-slot').textContent = activeDisplayLabel;
-
-
-
-// Xác định danh sách ID nằm trong Top 6 để gắn huy hiệu TOP trên sơ đồ 20 đầu nhận
-
-const top6List = getTop6LinesForActiveHour();
-
-const top6RankMap = {};
-
-top6List.forEach((item, rankIdx) => {
-
-top6RankMap[item.idx] = rankIdx + 1;
-
-});
-
-
-
-// Render 10 Line Dãy Bắc (Line 01 -> Line 10) và 10 Line Dãy Nam (Line 11 -> Line 20)
-
-const northGrid = document.getElementById('north-lines-grid');
-
-const southGrid = document.getElementById('south-lines-grid');
-
-
-
-northGrid.innerHTML = state.lines.slice(0, 10).map((line, i) => buildLineCardHTML(line, i, 'NORTH', top6RankMap[i])).join('');
-
-southGrid.innerHTML = state.lines.slice(10, 20).map((line, i) => buildLineCardHTML(line, i + 10, 'SOUTH', top6RankMap[i + 10])).join('');
-
-
-
-// Render Khối 1 Cột Phải: Bảng xếp hạng TOP 6 Sản Lượng từ API
-
-document.getElementById('top6-slot-badge').textContent = activeDisplayLabel;
-
-const maxTopVol = Math.max(1, top6List[0]?.hourVol || 1);
-
-const unitSuffix = state.viewMode === 'SLOT' ? '/h' : '';
-
-document.getElementById('master-top6-list').innerHTML = top6List.map((item, rIdx) => {
-
-const pct = Math.min(100, Math.round((item.hourVol / maxTopVol) * 100));
-
-const medalColors = [
-
-'bg-amber-400 text-slate-950',
-
-'bg-slate-300 text-slate-950',
-
-'bg-amber-600 text-white',
-
-'bg-cyan-900 text-cyan-200 border border-cyan-600',
-
-'bg-cyan-900 text-cyan-200 border border-cyan-600',
-
-'bg-cyan-900 text-cyan-200 border border-cyan-600'
-
-];
-
-return `
-
-<div class="bg-slate-950/90 border ${rIdx === 0 ? 'border-amber-500/70' : 'border-slate-800'} rounded-xl p-2 transition">
-
-<div class="flex items-center justify-between text-xs">
-
-<div class="flex items-center gap-2 min-w-0">
-
-<span class="w-5 h-5 rounded-md font-mono-num text-[10px] font-black flex items-center justify-center shrink-0 ${medalColors[rIdx]}">
-
-#${rIdx + 1}
-
-</span>
-
-<span class="font-mono-num font-black text-cyan-300 shrink-0">${item.name}</span>
-
-<span class="text-[11px] text-slate-300 truncate">${item.isOpen ? item.scannerName : '(Line đã tắt)'}</span>
-
-</div>
-
-<div class="text-right font-mono-num shrink-0">
-
-<span class="font-black text-amber-400 text-sm">${fmt(item.hourVol)}</span>
-
-<span class="text-[10px] text-slate-400">${unitSuffix}</span>
-
-</div>
-
-</div>
-
-<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1.5">
-
-<div class="h-full bg-gradient-to-r from-amber-500 to-cyan-400 rounded-full" style="width:${pct}%"></div>
-
-</div>
-
-</div>
-
-`;
-
-}).join('');
-
-
-
-// Render Khối 2 Cột Phải: MỤC TẤT CẢ + 3 CA CHÍNH (6h-15h, 13h-22h, 22h-6h) + CÁC CA NHỎ
-
-document.getElementById('all-hours-grand-badge').textContent = `Tổng: ${fmt(grandTotalVol)} kiện`;
-
-const isAllSelected = state.viewMode === 'ALL';
-
-
-
-const allHoursButtonHTML = `
-
-<div onclick="selectAllHoursView()" class="cursor-pointer flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-mono-num transition shadow ${isAllSelected ? 'bg-gradient-to-r from-cyan-900/80 to-blue-900/80 border-cyan-400 text-white font-black ring-1 ring-cyan-400/50' : 'bg-slate-950/90 border-slate-700/80 text-slate-200 hover:bg-slate-800/70'}">
-
-<div class="flex items-center gap-2">
-
-<span class="w-2.5 h-2.5 rounded-full ${isAllSelected ? 'bg-cyan-300 animate-ping' : 'bg-blue-400'}"></span>
-
-<div>
-
-<div class="uppercase tracking-wider font-extrabold text-[11px] text-cyan-300">TẤT CẢ (Tất cả các khung giờ)</div>
-
-<div class="text-[9px] text-slate-400 font-sans">Cộng dồn toàn bộ 3 Ca (26 ca nhỏ)</div>
-
-</div>
-
-</div>
-
-<div class="text-right">
-
-<span class="text-sm font-black text-emerald-400">${fmt(grandTotalVol)} kiện</span>
-
-</div>
-
-</div>
-
-`;
-
-
-
-const shiftGroupsHTML = SHIFT_DEFINITIONS.map((shift) => {
-
-const shiftSum = getShiftTotalAllLines(shift.id);
-
-const isShiftSelected = state.viewMode === 'SHIFT' && state.activeShiftId === shift.id;
-
-const isExpanded = !!state.expandedShifts[shift.id];
-
-
-
-// Danh sách các ca nhỏ (khung giờ 1h) bên trong Ca chính này
-
-const subSlotsHTML = shift.slotIndices.map((sIdx) => {
-
-const slotLabel = state.hourSlots[sIdx];
-
-const hrSum = getSlotTotalAllLines(sIdx);
-
-const isSlotSelected = state.viewMode === 'SLOT' && state.activeHourIndex === sIdx;
-
-
-
-return `
-
-<div onclick="changeActiveHour(${sIdx})" class="cursor-pointer flex items-center justify-between pl-6 pr-2.5 py-1.5 rounded-lg border text-[11px] font-mono-num transition ${isSlotSelected ? 'bg-cyan-950/80 border-cyan-400 text-white font-bold shadow' : 'bg-slate-950/50 border-slate-800/70 text-slate-300 hover:bg-slate-800/50'}">
-
-<div class="flex items-center gap-2">
-
-<span class="w-1.5 h-1.5 rounded-full ${isSlotSelected ? 'bg-cyan-400 animate-ping' : (hrSum > 0 ? 'bg-emerald-400' : 'bg-slate-700')}"></span>
-
-<span>${slotLabel}</span>
-
-</div>
-
-<span class="${isSlotSelected ? 'text-cyan-300 font-black' : 'text-emerald-400 font-semibold'}">${fmt(hrSum)} kiện</span>
-
-</div>
-
-`;
-
-}).join('');
-
-
-
-return `
-
-<div class="rounded-xl border ${isShiftSelected ? shift.activeBorder : 'border-slate-800 bg-slate-950/40'} overflow-hidden transition">
-
-<!-- Thanh tiêu đề Ca Chính (Nhấn vào để chạy tổng các ca nhỏ) -->
-
-<div onclick="selectMainShiftView('${shift.id}')" class="cursor-pointer flex items-center justify-between px-3 py-2 hover:bg-slate-800/50 transition">
-
-<div class="flex items-center gap-2 min-w-0">
-
-<button onclick="toggleShiftAccordion(event, '${shift.id}')" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-[10px] text-slate-300 shrink-0" title="Đóng/Mở danh sách ca nhỏ">
-
-${isExpanded ? '▼' : '▶'}
-
-</button>
-
-<div>
-
-<div class="flex items-center gap-1.5">
-
-<span class="text-xs font-extrabold ${isShiftSelected ? 'text-white' : 'text-slate-100'}">${shift.name}</span>
-
-<span class="text-[9px] px-1.5 py-0.2 rounded border font-mono-num font-bold ${shift.badgeColor}">${shift.slotIndices.length} ca nhỏ</span>
-
-</div>
-
-<div class="text-[9px] text-slate-400">Nhấn để chạy tổng số các ca nhỏ (${shift.fullName.split('(')[1].replace(')', '')})</div>
-
-</div>
-
-</div>
-
-<div class="text-right font-mono-num shrink-0">
-
-<div class="text-xs font-black ${isShiftSelected ? 'text-amber-300' : 'text-emerald-400'}">${fmt(shiftSum)} kiện</div>
-
-<div class="text-[9px] ${isShiftSelected ? 'text-cyan-300 font-bold' : 'text-slate-500'}">${isShiftSelected ? '● Đang xem tổng ca' : 'Xem tổng ca'}</div>
-
-</div>
-
-</div>
-
-
-
-<!-- Danh sách các ca nhỏ bên trong -->
-
-<div class="${isExpanded ? 'block' : 'hidden'} px-2 pb-2 pt-1 space-y-1 border-t border-slate-800/70 bg-slate-950/60">
-
-${subSlotsHTML}
-
-</div>
-
-</div>
-
-`;
-
-}).join('');
-
-
-
-document.getElementById('master-all-hours-table').innerHTML = allHoursButtonHTML + shiftGroupsHTML;
-
-
-
-// Render Khối 3 Cột Phải: Danh sách xe tồn chưa được xả
-
-document.getElementById('sidebar-pending-count').textContent = pendingTrucksCount;
-
-const pendingContainer = document.getElementById('master-pending-trucks-list');
-
-if (state.pendingTrucks.length === 0) {
-
-pendingContainer.innerHTML = `<div class="text-center py-6 text-xs text-emerald-400 font-bold">✓ Không còn xe tồn! Toàn bộ xe đã được xả hết.</div>`;
-
-} else {
-
-pendingContainer.innerHTML = state.pendingTrucks.map((trk, tIdx) => `
-
-<div class="bg-slate-950/85 border border-slate-800 rounded-lg p-2 flex items-center justify-between gap-2 text-xs">
-
-<div>
-
-<div class="flex items-center gap-1.5">
-
-<span class="font-mono-num font-bold text-amber-300">${trk.plate}</span>
-
-<span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">${trk.type}</span>
-
-${trk.priority === 'HIGH' ? '<span class="text-[9px] px-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">GẤP</span>' : ''}
-
-</div>
-
-<div class="text-[10px] text-slate-400 font-mono-num mt-0.5">
-
-${fmt(trk.estBoxes)} kiện • Chờ: ${trk.waitTime} (${trk.gate})
-
-</div>
-
-</div>
-
-<button onclick="unloadPendingTruck(${tIdx})" class="px-2 py-1 rounded bg-emerald-600/25 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-[10px] font-bold shrink-0 transition">
-
-Xả Xe
-
-</button>
-
-</div>
-
-`).join('');
-
-}
-
-}
-
-
-
-// Hàm dựng từng Thẻ Đầu Nhận Băng Chuyền trên Sơ Đồ 20 Đầu Nhận
-
-function buildLineCardHTML(line, idx, direction, topRank) {
-
-const hrVol = getLineHourVol(line);
-
-const totVol = getLineTotalVol(line);
-
-const isOpen = line.isOpen;
-
-
-
-// Khi Line TẮT: đổi màu nút sang Đỏ/Xám và TẮT hiển thị tên nhân viên
-
-const cardStyle = isOpen
-
-? 'bg-slate-900/95 border-cyan-500/50 shadow-md hover:border-cyan-400'
-
-: 'line-card-off opacity-75';
-
-
-
-const powerBtnStyle = isOpen
-
-? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black shadow-sm shadow-emerald-500/30'
-
-: 'bg-rose-600 hover:bg-rose-500 text-white font-black shadow-sm shadow-rose-600/30';
-
-
-
-const beltClass = isOpen
-
-? (direction === 'NORTH' ? 'belt-active-down' : 'belt-active-up')
-
-: 'belt-stopped';
-
-
-
-const parcelAnim = direction === 'NORTH' ? 'parcel-down' : 'parcel-up';
-
-
-
-const topBadgeHTML = topRank
-
-? `<span class="px-1 py-0.2 rounded bg-amber-400 text-slate-950 font-mono-num font-black text-[9px]" title="Nằm trong Top 6 sản lượng giờ cao nhất">TOP ${topRank}</span>`
-
-: '';
-
-
-
-// Phần hiển thị Nhân Sự (1 Quét + 4 Hỗ trợ): Tự động TẮT khi Line không mở
-
-const staffSectionHTML = isOpen
-
-? `
-
-<div onclick="openQuickEditModal(${idx})" class="cursor-pointer bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 rounded-lg p-1.5 transition">
-
-<div class="flex items-center justify-between text-[9px] text-cyan-400 font-bold uppercase">
-
-<span>1 Quét chính:</span>
-
-<span class="font-mono-num text-slate-400">${line.scannerId}</span>
-
-</div>
-
-<div class="text-[11px] font-extrabold text-white truncate mt-0.5" title="${line.scannerName}">
-
-${line.scannerName}
-
-</div>
-
-<div class="mt-1 pt-1 border-t border-slate-800/90">
-
-<div class="text-[9px] text-emerald-400 font-bold">4 Hỗ trợ xả hàng:</div>
-
-<div class="text-[9px] text-slate-300 truncate" title="${line.supporters.join(', ')}">
-
-${line.supporters[0].split(' ').pop()}, ${line.supporters[1].split(' ').pop()}, ${line.supporters[2].split(' ').pop()}, ${line.supporters[3].split(' ').pop()}
-
-</div>
-
-</div>
-
-</div>
-
-`
-
-: `
-
-<div onclick="openQuickEditModal(${idx})" class="cursor-pointer bg-slate-950/60 border border-rose-900/40 rounded-lg p-2 text-center">
-
-<div class="text-[10px] font-extrabold text-rose-400 uppercase">ĐẦU LINE ĐANG TẮT</div>
-
-<div class="text-[9px] text-slate-500 mt-0.5">Đã tắt nhân sự (0/5 người)</div>
-
-</div>
-
-`;
-
-
-
-return `
-
-<div class="rounded-xl border p-2 flex flex-col justify-between transition ${cardStyle}">
-
-<!-- Hàng 1: Tên Line + Nút BẬT/TẮT đổi màu trực tiếp -->
-
-<div class="flex items-center justify-between gap-1 mb-1">
-
-<div class="flex items-center gap-1">
-
-<span class="font-mono-num text-xs font-black ${isOpen ? 'text-cyan-300' : 'text-slate-500'}">${line.code}</span>
-
-${topBadgeHTML}
-
-</div>
-
-<button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[9px] uppercase tracking-wider transition ${powerBtnStyle}" title="Bấm để Bật / Tắt đầu nhận này">
-
-${isOpen ? '● MỞ' : '✕ TẮT'}
-
-</button>
-
-</div>
-
-
-
-<!-- Hàng 2: Thông số Xe Đã Quét & Sản Lượng -->
-
-<div class="grid grid-cols-2 gap-1 bg-slate-950/70 rounded-lg p-1 mb-1.5 font-mono-num text-[10px]">
-
-<div>
-
-<span class="text-slate-400 block text-[8px] uppercase">${state.viewMode === 'ALL' ? 'Tất Cả / Tổng' : (state.viewMode === 'SHIFT' ? 'Ca Chính / Tổng' : 'Ca Nhỏ / Tổng')}</span>
-
-<span class="font-bold ${isOpen ? 'text-white' : 'text-slate-500'}">${fmt(hrVol)}</span>
-
-<span class="text-slate-500 text-[9px]">/${fmt(totVol)}</span>
-
-</div>
-
-<div class="text-right">
-
-<span class="text-slate-400 block text-[8px] uppercase">Xe Đã Quét</span>
-
-<span class="font-bold ${isOpen ? 'text-indigo-400' : 'text-slate-500'}">${line.trucksScanned} xe</span>
-
-</div>
-
-</div>
-
-
-
-<!-- Hàng 3: Mô phỏng trực quan nhánh băng chuyền chạy hàng -->
-
-<div onclick="openQuickEditModal(${idx})" class="cursor-pointer relative h-9 w-full rounded-lg border ${isOpen ? 'border-slate-700' : 'border-slate-800'} overflow-hidden mb-1.5 flex items-center justify-center ${beltClass}">
-
-${isOpen ? `
-
-<div class="w-3.5 h-2.5 rounded-sm bg-amber-400 border border-amber-200 shadow absolute left-1/2 -translate-x-1/2 ${parcelAnim}"></div>
-
-<span class="z-10 text-[9px] font-mono-num font-bold text-cyan-200 bg-slate-950/80 px-1.5 py-0.2 rounded">ĐANG CHẠY</span>
-
-` : `
-
-<span class="z-10 text-[9px] font-mono-num font-bold text-rose-400 bg-slate-950/90 px-1.5 py-0.2 rounded border border-rose-800/50">NGƯNG NHẬN</span>
-
-`}
-
-</div>
-
-
-
-<!-- Hàng 4: Khối hiển thị 1 Người Quét + 4 Người Hỗ Trợ (Tự tắt khi Line Tắt) -->
-
-${staffSectionHTML}
-
-</div>
-
-`;
-
-}
-
-
-
-// ==================== BẬT / TẮT LINE & CẬP NHẬT NHÂN SỰ ====================
-
-function toggleSingleLineStatus(idx) {
-
-const line = state.lines[idx];
-
-if (!line) return;
-
-line.isOpen = !line.isOpen;
-
-saveState();
-
-renderAll();
-
-showToast(line.isOpen
-
-? `Đã MỞ ${line.name} — Đã bật lại tên Người Quét & 4 Hỗ Trợ!`
-
-: `Đã TẮT ${line.name} — Đã đổi màu nút & tắt nhân viên trên Trang Tổng!`);
-
-}
-
-
-
-function setAll20LinesStatus(openState) {
-
-state.lines.forEach(l => l.isOpen = openState);
-
-saveState();
-
-renderAll();
-
-showToast(openState
-
-? 'Đã MỞ toàn bộ 20 Đầu Nhận (100 Nhân sự đang hoạt động)!'
-
-: 'Đã TẮT toàn bộ 20 Đầu Nhận (Tạm ngưng toàn bộ nhân sự)!');
-
-}
-
-
-
-// ==================== RENDER PHÂN HỆ 2: TRANG NHẬP TÊN NGƯỜI QUÉT (1+4) ====================
-
-function renderCrewManagementPage() {
-
-const searchVal = (document.getElementById('crew-search-input')?.value || '').trim().toLowerCase();
-
-const statusFilter = document.getElementById('crew-filter-status')?.value || 'ALL';
-
-const tbody = document.getElementById('crew-20lines-tbody');
-
-if (!tbody) return;
-
-
-
-tbody.innerHTML = state.lines.map((line, idx) => {
-
-if (statusFilter === 'OPEN' && !line.isOpen) return '';
-
-if (statusFilter === 'OFF' && line.isOpen) return '';
-
-
-
-const matchText = `${line.name} ${line.code} ${line.scannerName} ${line.scannerId} ${line.supporters.join(' ')}`.toLowerCase();
-
-if (searchVal && !matchText.includes(searchVal)) return '';
-
-
-
-return `
-
-<tr class="${line.isOpen ? 'bg-slate-950/40 hover:bg-slate-900/70' : 'bg-rose-950/10 opacity-75'} transition">
-
-<td class="py-3 px-3">
-
-<div class="font-mono-num font-black text-sm ${line.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${line.name}</div>
-
-<div class="text-[10px] text-slate-500">Đầu nhận #${idx + 1}</div>
-
-</td>
-
-<td class="py-3 px-3">
-
-<button onclick="toggleSingleLineStatus(${idx})" class="w-full px-3 py-2 rounded-xl font-extrabold text-xs transition flex items-center justify-center gap-1.5 ${line.isOpen ? 'bg-emerald-500 text-slate-950 shadow shadow-emerald-500/20' : 'bg-rose-600 text-white shadow shadow-rose-600/20'}">
-
-<span>${line.isOpen ? '🟢 ĐANG MỞ' : '🔴 ĐÃ TẮT'}</span>
-
-</button>
-
-</td>
-
-<td class="py-3 px-3">
-
-<div class="flex gap-1.5">
-
-<input id="crew-scanner-name-${idx}" type="text" value="${line.scannerName}" oninput="liveUpdateCrewRow(${idx})" placeholder="Tên người quét chính..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-semibold focus:border-cyan-500 focus:outline-none">
-
-<input id="crew-scanner-id-${idx}" type="text" value="${line.scannerId}" oninput="liveUpdateCrewRow(${idx})" placeholder="Mã NV" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 font-mono-num focus:border-cyan-500 focus:outline-none">
-
-</div>
-
-</td>
-
-<td class="py-3 px-3">
-
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-
-<input id="crew-sup-${idx}-0" type="text" value="${line.supporters[0]}" oninput="liveUpdateCrewRow(${idx})" placeholder="Hỗ trợ 1" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 focus:border-emerald-500 focus:outline-none">
-
-<input id="crew-sup-${idx}-1" type="text" value="${line.supporters[1]}" oninput="liveUpdateCrewRow(${idx})" placeholder="Hỗ trợ 2" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 focus:border-emerald-500 focus:outline-none">
-
-<input id="crew-sup-${idx}-2" type="text" value="${line.supporters[2]}" oninput="liveUpdateCrewRow(${idx})" placeholder="Hỗ trợ 3" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 focus:border-emerald-500 focus:outline-none">
-
-<input id="crew-sup-${idx}-3" type="text" value="${line.supporters[3]}" oninput="liveUpdateCrewRow(${idx})" placeholder="Hỗ trợ 4" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 focus:border-emerald-500 focus:outline-none">
-
-</div>
-
-</td>
-
-<td class="py-3 px-3 text-right">
-
-<input id="crew-trucks-${idx}" type="number" min="0" value="${line.trucksScanned}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num font-bold text-indigo-300">
-
-</td>
-
-<td class="py-3 px-3 text-right">
-
-<input id="crew-target-${idx}" type="number" min="50" value="${line.targetPerHour}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num text-slate-300">
-
-</td>
-
-</tr>
-
-`;
-
-}).join('');
-
-}
-
-
-
-function liveUpdateCrewRow(idx) {
-
-const line = state.lines[idx];
-
-if (!line) return;
-
-const scName = document.getElementById(`crew-scanner-name-${idx}`);
-
-const scId = document.getElementById(`crew-scanner-id-${idx}`);
-
-const trkInput = document.getElementById(`crew-trucks-${idx}`);
-
-const tarInput = document.getElementById(`crew-target-${idx}`);
-
-
-
-if (scName) line.scannerName = scName.value.trim() || 'Chưa phân công';
-
-if (scId) line.scannerId = scId.value.trim() || `NV-${101 + idx}`;
-
-for (let s = 0; s < 4; s++) {
-
-const supInput = document.getElementById(`crew-sup-${idx}-${s}`);
-
-if (supInput) line.supporters[s] = supInput.value.trim() || `Hỗ trợ ${s + 1}`;
-
-}
-
-if (trkInput) line.trucksScanned = Math.max(0, parseInt(trkInput.value, 10) || 0);
-
-if (tarInput) line.targetPerHour = Math.max(50, parseInt(tarInput.value, 10) || 240);
-
-
-
-saveState();
-
-}
-
-
-
-function saveCrewAllChanges() {
-
-saveState();
-
-renderAll();
-
-switchPage('master');
-
-showToast('Đã lưu danh sách 1 Người Quét + 4 Hỗ Trợ và đồng bộ sang Trang Tổng!');
-
-}
-
-
-
-function randomizeSampleCrew() {
-
-state.lines.forEach((line, idx) => {
-
-line.scannerName = SAMPLE_SCANNERS[(idx + Math.floor(Math.random() * 5)) % SAMPLE_SCANNERS.length];
-
-line.supporters = generateSupportCrew(idx + Math.floor(Math.random() * 10));
-
-});
-
-saveState();
-
-renderAll();
-
-showToast('Đã nạp danh sách mẫu 100 Nhân Sự (20 Người Quét + 80 Người Hỗ Trợ)!');
-
-}
-
-
-
-// ==================== RENDER PHÂN HỆ 3: TRANG CHẠY API ====================
-
-function renderApiPage() {
-
-// Dropdown chọn khung giờ (nhóm theo 3 Ca Chính)
-
-const hrSelect = document.getElementById('api-hour-select');
-
-if (hrSelect) {
-
-hrSelect.innerHTML = SHIFT_DEFINITIONS.map(shift => `
-
-<optgroup label="${shift.fullName}">
-
-${shift.slotIndices.map(sIdx => `
-
-<option value="${sIdx}" ${sIdx === state.activeHourIndex ? 'selected' : ''}>${shift.name} • ${state.hourSlots[sIdx]}</option>
-
-`).join('')}
-
-</optgroup>
-
-`).join('');
-
-}
-
-
-
-// Dropdown chọn Line để bắn API
-
-const lineSelect = document.getElementById('api-target-line-select');
-
-if (lineSelect && !lineSelect.innerHTML.trim()) {
-
-lineSelect.innerHTML = state.lines.map((l, i) => `
-
-<option value="${i}">${l.name} - ${l.scannerName}</option>
-
-`).join('');
-
-}
-
-
-
-document.getElementById('api-stat-packets').textContent = fmt(state.apiPacketsCount);
-
-document.getElementById('api-stat-lastsync').textContent = state.lastSyncTime;
-
-
-
-// Nút trạng thái API
-
-const btn = document.getElementById('api-toggle-btn');
-
-const btnText = document.getElementById('api-toggle-btn-text');
-
-const hDot = document.getElementById('header-api-dot');
-
-const hSolid = document.getElementById('header-api-dot-solid');
-
-const hText = document.getElementById('header-api-text');
-
-
-
-if (state.apiRunning) {
-
-btn.className = 'px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg flex items-center gap-2 transition';
-
-btnText.textContent = 'API ĐANG CHẠY (NHẤN ĐỂ TẠM DỪNG)';
-
-hDot.classList.remove('hidden');
-
-hSolid.className = 'w-2 h-2 rounded-full bg-emerald-500 -ml-4';
-
-hText.textContent = 'API RUNNING';
-
-hText.className = 'text-[11px] font-mono-num font-bold text-emerald-400';
-
-} else {
-
-btn.className = 'px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-extrabold shadow-lg flex items-center gap-2 transition';
-
-btnText.textContent = 'API ĐANG DỪNG (NHẤN ĐỂ CHẠY LẠI)';
-
-hDot.classList.add('hidden');
-
-hSolid.className = 'w-2 h-2 rounded-full bg-amber-400';
-
-hText.textContent = 'API PAUSED';
-
-hText.className = 'text-[11px] font-mono-num font-bold text-amber-400';
-
-}
-
-
-
-// Render Top 6 preview trong trang API
-
-const top6 = getTop6LinesForActiveHour();
-
-const top6Container = document.getElementById('api-page-top6-preview');
-
-if (top6Container) {
-
-top6Container.innerHTML = top6.map((item, idx) => `
-
-<div class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono-num">
-
-<div>
-
-<span class="text-amber-400 font-black mr-1.5">TOP ${idx + 1}</span>
-
-<span class="text-cyan-300 font-bold">${item.name}</span>
-
-<span class="text-slate-400 text-[11px] ml-1">(${item.scannerName})</span>
-
-</div>
-
-<span class="text-emerald-400 font-bold">${fmt(item.hourVol)} kiện/h</span>
-
-</div>
-
-`).join('');
-
-}
-
-active_view_mode: state.viewMode,
-
-active_view_label: getActiveViewDisplayLabel(),
-
-active_hour_slot: state.hourSlots[state.activeHourIndex],
-
-shifts_summary: SHIFT_DEFINITIONS.map(sh => ({
-
-shift_id: sh.id,
-
-shift_name: sh.fullName,
-
-total_volume: getShiftTotalAllLines(sh.id)
-
-})),
-
-summary: {
-
-open_lines: state.lines.filter(l => l.isOpen).length,
-
-closed_lines: state.lines.filter(l => !l.isOpen).length,
-
-active_staff_total: state.lines.filter(l => l.isOpen).length * 5,
-
-current_view_volume: getHourTotalAllLines(),
-
-all_hours_total_volume: getGrandTotalAllHours(),
-
-trucks_scanned_total: getTotalScannedTrucks(),
-
-pending_trucks_unloaded: state.pendingTrucks.length
-
-},
-
-top_6_hourly_lines_api: top6.map((t, i) => ({
-
-rank: i + 1,
-
-line_id: t.id,
-
-scanner_pic: t.scannerName,
-
-hour_volume: t.hourVol
-
-})),
-
-lines_20_data: state.lines.map(l => ({
-
-line_id: l.id,
-
-status: l.isOpen ? "OPEN" : "OFF",
-
-scanner_Visible: l.isOpen ? l.scannerName : "HIDDEN_LINE_OFF",
-
-supporters_count: l.isOpen ? 4 : 0,
-
-trucks_scanned: l.trucksScanned,
-
-current_hour_vol: getLineHourVol(l),
-
-all_hours_vol: getLineTotalVol(l)
-
-}))
-
-};
-
-jsonPre.textContent = JSON.stringify(payload, null, 2);
-
-}
-
-}
-
-
-
-function appendApiLog(msg) {
-
-const now = new Date().toTimeString().split(' ')[0];
-
-apiLogs.unshift(`[${now}] ${msg}`);
-
-if (apiLogs.length > 35) apiLogs.pop();
-
-const logEl = document.getElementById('api-terminal-log');
-
-if (logEl) {
-
-logEl.innerHTML = apiLogs.map(l => `<div>${l}</div>`).join('');
-
-}
-
-}
-
-
-
-function clearApiLogs() {
-
-apiLogs = [];
-
-appendApiLog('Đã làm mới màn hình Terminal API.');
-
-}
-
-
-
-function triggerApiTick(isManual = false) {
-
-let addedTotal = 0;
-
-let updatedLines = 0;
-
-
-
-state.lines.forEach((line) => {
-
-// Chỉ những Line có trạng thái MỞ (isOpen === true) mới nhận sản lượng từ API
-
-if (line.isOpen && (isManual || Math.random() > 0.25)) {
-
-const delta = Math.floor(Math.random() * 5) + (isManual ? 4 : 1);
-
-line.hourlyCounts[state.activeHourIndex] = getLineSlotVol(line, state.activeHourIndex) + delta;
-
-addedTotal += delta;
-
-updatedLines++;
-
-}
-
-});
-
-
-
-state.apiPacketsCount += 1;
-
-state.lastSyncTime = new Date().toTimeString().split(' ')[0];
-
-saveState();
-
-
-
-const top1 = getTop6LinesForActiveHour()[0];
-
-appendApiLog(`GET /api/v2/inbound/20-lines ➔ +${addedTotal} kiện trên ${updatedLines} Line mở (${getActiveViewDisplayLabel()}) | Top 1: ${top1.name} (${fmt(top1.hourVol)} kiện)`);
-
-renderAll();
-
-
-
-if (isManual) {
-
-showToast(`API vừa đồng bộ +${addedTotal} kiện cho ${updatedLines} đầu nhận đang mở!`);
-
-}
-
-}
-
-
-
-function startApiLoop() {
-
-if (apiTimerId) clearInterval(apiTimerId);
-
-apiTimerId = setInterval(() => {
-
-if (state.apiRunning) {
-
-triggerApiTick(false);
-
-}
-
-}, state.apiIntervalMs);
-
-}
-
-
-
-function toggleApiEngine() {
-
-state.apiRunning = !state.apiRunning;
-
-saveState();
-
-renderAll();
-
-showToast(state.apiRunning ? 'Đã BẬT luồng chạy API tự động!' : 'Đã TẠM DỪNG luồng chạy API!');
-
-}
-
-
-
-function changeApiInterval(ms) {
-
-state.apiIntervalMs = parseInt(ms, 10) || 2500;
-
-saveState();
-
-startApiLoop();
-
-showToast(`Đã đổi chu kỳ quét API thành ${state.apiIntervalMs / 1000}s / lần.`);
-
-}
-
-
-
-function changeActiveHour(hrIdx) {
-
-const parsedIdx = parseInt(hrIdx, 10);
-
-state.activeHourIndex = parsedIdx;
-
-state.viewMode = 'SLOT';
-
-const parentShift = getShiftForSlotIndex(parsedIdx);
-
-if (parentShift) {
-
-state.activeShiftId = parentShift.id;
-
-state.expandedShifts[parentShift.id] = true;
-
-}
-
-saveState();
-
-renderAll();
-
-showToast(`Đang xem ca nhỏ ${state.hourSlots[state.activeHourIndex]} (${parentShift.name})`);
-
-}
-
-
-
-function boostSelectedLineApi(amount) {
-
-const idx = parseInt(document.getElementById('api-target-line-select')?.value || '0', 10);
-
-const line = state.lines[idx];
-
-if (!line) return;
-
-if (!line.isOpen) {
-
-line.isOpen = true; // Tự động mở line nếu đang tắt khi test bơm API
-
-}
-
-line.hourlyCounts[state.activeHourIndex] = getLineSlotVol(line, state.activeHourIndex) + amount;
-
-state.apiPacketsCount++;
-
-state.lastSyncTime = new Date().toTimeString().split(' ')[0];
-
-appendApiLog(`POST /api/v2/burst ➔ Bơm +${amount} kiện vào ${line.name} (${line.scannerName})`);
-
-saveState();
-
-renderAll();
-
-showToast(`Đã cộng +${amount} kiện cho ${line.name} để đua Top 6!`);
-
-}
-
-
-
-function boostSelectedLineTruck() {
-
-const idx = parseInt(document.getElementById('api-target-line-select')?.value || '0', 10);
-
-const line = state.lines[idx];
-
-if (!line) return;
-
-line.trucksScanned += 1;
-
-appendApiLog(`POST /api/v2/truck-complete ➔ ${line.name} hoàn tất thêm 1 xe (Tổng: ${line.trucksScanned} xe)`);
-
-saveState();
-
-renderAll();
-
-showToast(`Đã cộng +1 xe đã quét cho ${line.name}!`);
-
-}
-
-
-
-function resetActiveHourApiData() {
-
-if (state.viewMode === 'ALL') {
-
-state.lines.forEach(l => {
-
-l.hourlyCounts = l.hourlyCounts.map(() => 0);
-
-});
-
-saveState();
-
-renderAll();
-
-showToast('Đã đưa sản lượng TẤT CẢ CÁC KHUNG GIỜ về 0!');
-
-return;
-
-}
-
-if (state.viewMode === 'SHIFT') {
-
-const shift = getShiftDef(state.activeShiftId);
-
-state.lines.forEach(l => {
-
-shift.slotIndices.forEach(sIdx => { l.hourlyCounts[sIdx] = 0; });
-
-});
-
-saveState();
-
-renderAll();
-
-showToast(`Đã đưa sản lượng các ca nhỏ thuộc ${shift.fullName} về 0!`);
-
-return;
-
-}
-
-state.lines.forEach(l => {
-
-l.hourlyCounts[state.activeHourIndex] = 0;
-
-});
-
-saveState();
-
-renderAll();
-
-showToast(`Đã đưa sản lượng ca nhỏ ${state.hourSlots[state.activeHourIndex]} về 0!`);
-
-}
-
-
-
-function copyApiJson() {
-
-const text = document.getElementById('api-json-inspector')?.textContent || '';
-
-const ta = document.createElement('textarea');
-
-ta.value = text;
-
-document.body.appendChild(ta);
-
-ta.select();
-
-document.execCommand('copy');
-
-document.body.removeChild(ta);
-
-showToast('Đã sao chép gói tin JSON API vào bộ nhớ tạm!');
-
-}
-
-
-
-// ==================== QUẢN LÝ XE TỒN CHƯA XẢ & XE ĐÃ XẢ ====================
-
-function addNewPendingTruck() {
-
-const plates = ['51C-902.41', '29H-771.08', '60C-389.12', '51D-645.99', '61C-812.33', '43H-501.76'];
-
-const types = ['Cont 40ft', 'Cont 20ft', 'Tải 15 Tấn', 'Cont 40ft'];
-
-const randomPlate = plates[Math.floor(Math.random() * plates.length)];
-
-const randomType = types[Math.floor(Math.random() * types.length)];
-
-const estBoxes = randomType === 'Cont 40ft' ? (1300 + Math.floor(Math.random() * 300)) : (750 + Math.floor(Math.random() * 250));
-
-
-
-const newTruck = {
-
-id: `TRK-${810 + state.pendingTrucks.length + state.completedTrucks.length}`,
-
-plate: randomPlate,
-
-type: randomType,
-
-estBoxes: estBoxes,
-
-waitTime: 'Vừa đến',
-
-gate: `Bãi Chờ A${(state.pendingTrucks.length % 4) + 1}`,
-
-priority: Math.random() > 0.5 ? 'HIGH' : 'NORMAL'
-
-};
-
-
-
-state.pendingTrucks.unshift(newTruck);
-
-appendApiLog(`WEBHOOK /truck-arrival ➔ Xe mới ${newTruck.plate} (${newTruck.type} - ${estBoxes} kiện) vào hàng chờ chưa xả.`);
-
-saveState();
-
-renderAll();
-
-showToast(`Đã ghi nhận thêm xe tồn ${newTruck.plate} (${estBoxes} kiện)!`);
-
-}
-
-
-
-function unloadPendingTruck(pendingIdx) {
-
-const trk = state.pendingTrucks[pendingIdx];
-
-if (!trk) return;
-
-
-
-// Tìm 1 Line đang MỞ để phân bổ xả xe này
-
-const openLines = state.lines.filter(l => l.isOpen);
-
-if (openLines.length === 0) {
-
-showToast('Cảnh báo: Cả 20 Line đều đang TẮT! Hãy mở ít nhất 1 Line để xả xe.');
-
-return;
-
-}
-
-
-
-const assignedLine = openLines[pendingIdx % openLines.length];
-
-assignedLine.trucksScanned += 1;
-
-// Cộng một phần sản lượng thực nhận vào giờ hiện tại của Line đó
-
-const addedBoxes = Math.round(trk.estBoxes * 0.25);
-
-assignedLine.hourlyCounts[state.activeHourIndex] += addedBoxes;
-
-
-
-// Chuyển từ danh sách Xe Chưa Xả sang danh sách Xe Đã Được Xả
-
-state.pendingTrucks.splice(pendingIdx, 1);
-
-state.completedTrucks.unshift({
-
-id: trk.id,
-
-plate: trk.plate,
-
-lineName: assignedLine.name,
-
-scanner: assignedLine.scannerName,
-
-boxes: trk.estBoxes,
-
-completedAt: new Date().toTimeString().split(' ')[0]
-
-});
-
-
-
-appendApiLog(`POST /truck-unloaded ➔ Xe ${trk.plate} (${trk.estBoxes} kiện) đã xả xong tại ${assignedLine.name} bởi ${assignedLine.scannerName}.`);
-
-saveState();
-
-renderAll();
-
-showToast(`Đã xả xong xe ${trk.plate} tại ${assignedLine.name} (+1 xe đã quét)!`);
-
-}
-
-
-
-function simulateUnloadPendingTruckViaApi() {
-
-if (state.pendingTrucks.length === 0) {
-
-addNewPendingTruck();
-
-}
-
-unloadPendingTruck(0);
-
-}
-
-
-
-// ==================== RENDER PHÂN HỆ 4: DASHBOARD CHI TIẾT ====================
-
-function changeDashboardTableShiftFilter(filterVal) {
-
-state.dashboardTableShiftFilter = filterVal;
-
-saveState();
-
-renderDashboardPage();
-
-}
-
-
-
-function renderDashboardPage() {
-
-const openLines = state.lines.filter(l => l.isOpen);
-
-const activeStaff = openLines.length * 5;
-
-const inactiveStaff = (20 - openLines.length) * 5;
-
-const grandVol = getGrandTotalAllHours();
-
-const totalScannedTrucks = getTotalScannedTrucks();
-
-const avgPerStaff = activeStaff > 0 ? Math.round(grandVol / activeStaff) : 0;
-
-
-
-document.getElementById('db-kpi-total-staff').textContent = '100';
-
-document.getElementById('db-kpi-active-staff').textContent = fmt(activeStaff);
-
-document.getElementById('db-kpi-inactive-staff').textContent = `${inactiveStaff} NV tạm nghỉ do Line Tắt`;
-
-document.getElementById('db-kpi-grand-vol').textContent = fmt(grandVol);
-
-document.getElementById('db-kpi-completed-trucks').textContent = fmt(totalScannedTrucks);
-
-document.getElementById('db-kpi-pending-trucks').textContent = fmt(state.pendingTrucks.length);
-
-document.getElementById('db-kpi-avg-staff').textContent = fmt(avgPerStaff);
-
-
-
-// Bảng A: Chi tiết thông số 20 Line (Hỗ trợ xem Tổng hợp 3 Ca hoặc chi tiết từng Ca nhỏ trong Ca 1, Ca 2, Ca 3)
-
-const filterSelect = document.getElementById('db-table-shift-filter');
-
-if (filterSelect) filterSelect.value = state.dashboardTableShiftFilter || 'ALL_SHIFTS';
-
-
-
-const detailThead = document.getElementById('db-20lines-detail-thead');
-
-const detailTbody = document.getElementById('db-20lines-detail-tbody');
-
-
-
-if (detailThead && detailTbody) {
-
-if (state.dashboardTableShiftFilter === 'ALL_SHIFTS') {
-
-detailThead.innerHTML = `
-
-<tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-
-<th class="py-2.5 px-3">Line</th>
-
-<th class="py-2.5 px-2">Trạng Thái</th>
-
-<th class="py-2.5 px-3">Người Quét Chính</th>
-
-<th class="py-2.5 px-3">4 Người Hỗ Trợ</th>
-
-<th class="py-2.5 px-2 text-right">Xe Đã Xả</th>
-
-<th class="py-2.5 px-3 text-right text-cyan-300">Ca 1 (06h - 15h)</th>
-
-<th class="py-2.5 px-3 text-right text-amber-300">Ca 2 (13h - 22h)</th>
-
-<th class="py-2.5 px-3 text-right text-violet-300">Ca 3 (22h - 06h)</th>
-
-<th class="py-2.5 px-3 text-right text-emerald-400 font-extrabold">Tổng Tất Cả (24h)</th>
-
-</tr>
-
-`;
-
-detailTbody.innerHTML = state.lines.map((line, idx) => {
-
-const s1 = getLineShiftVol(line, 'SHIFT_1');
-
-const s2 = getLineShiftVol(line, 'SHIFT_2');
-
-const s3 = getLineShiftVol(line, 'SHIFT_3');
-
-const tot = getLineTotalVol(line);
-
-return `
-
-<tr class="${line.isOpen ? 'hover:bg-slate-900/70' : 'bg-rose-950/15 text-slate-500'} transition">
-
-<td class="py-2 px-3 font-bold ${line.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${line.name}</td>
-
-<td class="py-2 px-2">
-
-<button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${line.isOpen ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">
-
-${line.isOpen ? 'MỞ' : 'TẮT'}
-
-</button>
-
-</td>
-
-<td class="py-2 px-3 font-sans font-semibold ${line.isOpen ? 'text-white' : 'line-through text-slate-600'}">
-
-${line.isOpen ? `${line.scannerName} (${line.scannerId})` : 'Đã tắt (Line Đóng)'}
-
-</td>
-
-<td class="py-2 px-3 font-sans text-[11px] ${line.isOpen ? 'text-slate-300' : 'text-slate-600'}">
-
-${line.isOpen ? line.supporters.join(', ') : 'Tạm ngưng 4 nhân sự hỗ trợ'}
-
-</td>
-
-<td class="py-2 px-2 text-right font-bold text-indigo-400">${line.trucksScanned}</td>
-
-<td class="py-2 px-3 text-right font-bold text-cyan-300">${fmt(s1)}</td>
-
-<td class="py-2 px-3 text-right font-bold text-amber-300">${fmt(s2)}</td>
-
-<td class="py-2 px-3 text-right font-bold text-violet-300">${fmt(s3)}</td>
-
-<td class="py-2 px-3 text-right font-extrabold text-emerald-400">${fmt(tot)}</td>
-
-</tr>
-
-`;
-
-}).join('');
-
-} else {
-
-const selectedShift = getShiftDef(state.dashboardTableShiftFilter);
-
-detailThead.innerHTML = `
-
-<tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
-
-<th class="py-2.5 px-3">Line</th>
-
-<th class="py-2.5 px-2">Trạng Thái</th>
-
-<th class="py-2.5 px-3">Người Quét Chính</th>
-
-<th class="py-2.5 px-2 text-right">Xe Đã Xả</th>
-
-${selectedShift.slotIndices.map(sIdx => {
-
-const shortHr = state.hourSlots[sIdx].replace(':00 - ', '-').replace(':00', 'h');
-
-return `<th class="py-2.5 px-2 text-right ${sIdx === state.activeHourIndex ? 'text-cyan-300' : ''}">${shortHr}</th>`;
-
-}).join('')}
-
-<th class="py-2.5 px-3 text-right text-amber-300 font-extrabold">Tổng ${selectedShift.name}</th>
-
-<th class="py-2.5 px-3 text-right text-emerald-400 font-extrabold">Tổng Tất Cả</th>
-
-</tr>
-
-`;
-
-detailTbody.innerHTML = state.lines.map((line, idx) => {
-
-const shiftTotal = getLineShiftVol(line, selectedShift.id);
-
-const tot = getLineTotalVol(line);
-
-return `
-
-<tr class="${line.isOpen ? 'hover:bg-slate-900/70' : 'bg-rose-950/15 text-slate-500'} transition">
-
-<td class="py-2 px-3 font-bold ${line.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${line.name}</td>
-
-<td class="py-2 px-2">
-
-<button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${line.isOpen ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">
-
-${line.isOpen ? 'MỞ' : 'TẮT'}
-
-</button>
-
-</td>
-
-<td class="py-2 px-3 font-sans font-semibold ${line.isOpen ? 'text-white' : 'line-through text-slate-600'}">
-
-${line.isOpen ? `${line.scannerName}` : 'Đã tắt'}
-
-</td>
-
-<td class="py-2 px-2 text-right font-bold text-indigo-400">${line.trucksScanned}</td>
-
-${selectedShift.slotIndices.map(sIdx => `
-
-<td class="py-2 px-2 text-right ${sIdx === state.activeHourIndex ? 'text-cyan-300 font-bold bg-cyan-950/30' : ''}">${fmt(line.hourlyCounts[sIdx])}</td>
-
-`).join('')}
-
-<td class="py-2 px-3 text-right font-extrabold text-amber-300 bg-amber-950/20">${fmt(shiftTotal)}</td>
-
-<td class="py-2 px-3 text-right font-extrabold text-emerald-400">${fmt(tot)}</td>
-
-</tr>
-
-`;
-
-}).join('');
-
-}
-
-}
-
-
-
-// Bảng B1: Danh sách xe chưa xả
-
-const pendingTbody = document.getElementById('db-pending-trucks-tbody');
-
-if (pendingTbody) {
-
-pendingTbody.innerHTML = state.pendingTrucks.map((trk, tIdx) => `
-
-<tr class="hover:bg-slate-900/60">
-
-<td class="py-2.5 px-3 font-mono-num font-bold text-amber-300">${trk.plate} <span class="text-[10px] text-slate-500 block">${trk.id}</span></td>
-
-<td class="py-2.5 px-2 text-slate-300">${trk.type}</td>
-
-<td class="py-2.5 px-2 text-right font-mono-num font-bold text-white">${fmt(trk.estBoxes)}</td>
-
-<td class="py-2.5 px-2 text-slate-400">${trk.gate} (${trk.waitTime})</td>
-
-<td class="py-2.5 px-3 text-right">
-
-<button onclick="unloadPendingTruck(${tIdx})" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow">
-
-Xả Xe Ngay
-
-</button>
-
-</td>
-
-</tr>
-
-`).join('');
-
-}
-
-
-
-// Bảng B2: Danh sách xe đã được xả
-
-document.getElementById('db-completed-badge').textContent = `${state.completedTrucks.length} chuyến gần nhất (Tổng ca: ${totalScannedTrucks} xe)`;
-
-const completedTbody = document.getElementById('db-completed-trucks-tbody');
-
-if (completedTbody) {
-
-completedTbody.innerHTML = state.completedTrucks.map(c => `
-
-<tr class="hover:bg-slate-900/60">
-
-<td class="py-2.5 px-3 font-mono-num font-bold text-emerald-300">${c.plate}</td>
-
-<td class="py-2.5 px-2 font-mono-num font-bold text-cyan-400">${c.lineName}</td>
-
-<td class="py-2.5 px-2 text-slate-200">${c.scanner}</td>
-
-<td class="py-2.5 px-2 text-right font-mono-num font-bold text-white">${fmt(c.boxes)} kiện</td>
-
-<td class="py-2.5 px-3 text-right font-mono-num text-slate-400">${c.completedAt}</td>
-
-</tr>
-
-`).join('');
-
-}
-
-
-
-renderDashboardStaffTable();
-
-}
-
-
-
-// Bảng C: Danh sách chi tiết 100 Nhân Viên (20 Người Quét + 80 Người Hỗ Trợ)
-
-function renderDashboardStaffTable() {
-
-const roleFilter = document.getElementById('db-staff-role-filter')?.value || 'ALL';
-
-const stateFilter = document.getElementById('db-staff-state-filter')?.value || 'ALL';
-
-const staffTbody = document.getElementById('db-staff-detail-tbody');
-
-if (!staffTbody) return;
-
-
-
-const rows = [];
-
-state.lines.forEach((line, lIdx) => {
-
-if (stateFilter === 'ACTIVE' && !line.isOpen) return;
-
-if (stateFilter === 'OFF' && line.isOpen) return;
-
-
-
-const hrVol = getLineHourVol(line);
-
-const totVol = getLineTotalVol(line);
-
-
-
-// 1. Người quét chính
-
-if (roleFilter === 'ALL' || roleFilter === 'SCANNER') {
-
-rows.push(`
-
-<tr class="hover:bg-slate-900/60">
-
-<td class="py-2 px-3 font-mono-num font-bold text-cyan-400">${line.scannerId}</td>
-
-<td class="py-2 px-3 font-bold text-white">${line.scannerName}</td>
-
-<td class="py-2 px-3"><span class="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold">Người Quét Chính (PIC)</span></td>
-
-<td class="py-2 px-3 font-mono-num font-bold text-slate-200">${line.name}</td>
-
-<td class="py-2 px-3">
-
-${line.isOpen
-
-? '<span class="text-emerald-400 font-bold text-[11px]">● Đang đứng Line</span>'
-
-: '<span class="text-rose-400 font-bold text-[11px]">✕ Đã tắt theo Line</span>'}
-
-</td>
-
-<td class="py-2 px-3 text-right font-mono-num font-bold text-white">${line.isOpen ? fmt(hrVol) : '0'}</td>
-
-<td class="py-2 px-3 text-right font-mono-num font-bold text-emerald-400">${fmt(totVol)}</td>
-
-</tr>
-
-`);
-
-}
-
-
-
-// 2. Bốn người hỗ trợ
-
-if (roleFilter === 'ALL' || roleFilter === 'SUPPORT') {
-
-line.supporters.forEach((supName, sIdx) => {
-
-const supId = `HT-${String(lIdx + 1).padStart(2, '0')}${sIdx + 1}`;
-
-rows.push(`
-
-<tr class="hover:bg-slate-900/60">
-
-<td class="py-2 px-3 font-mono-num text-slate-400">${supId}</td>
-
-<td class="py-2 px-3 text-slate-200">${supName}</td>
-
-<td class="py-2 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-emerald-300 text-[10px] font-semibold">Người Hỗ Trợ #${sIdx + 1}</span></td>
-
-<td class="py-2 px-3 font-mono-num text-slate-300">${line.name}</td>
-
-<td class="py-2 px-3">
-
-${line.isOpen
-
-? '<span class="text-emerald-400 text-[11px]">● Đang hỗ trợ xả hàng</span>'
-
-: '<span class="text-rose-400 text-[11px]">✕ Tạm nghỉ (Line Tắt)</span>'}
-
-</td>
-
-<td class="py-2 px-3 text-right font-mono-num text-slate-300">${line.isOpen ? fmt(Math.round(hrVol / 4)) : '0'}</td>
-
-<td class="py-2 px-3 text-right font-mono-num text-slate-300">${fmt(totVol)}</td>
-
-</tr>
-
-`);
-
-});
-
-}
-
-});
-
-
-
-staffTbody.innerHTML = rows.join('');
-
-}
-
-
-
-// ==================== MODAL SỬA NHANH TRÊN TRANG TỔNG ====================
-
-function openQuickEditModal(idx) {
-
-editingLineIdx = idx;
-
-const line = state.lines[idx];
-
-if (!line) return;
-
-
-
-document.getElementById('modal-line-title').textContent = `Cấu Hình ${line.name} (1 Người Quét + 4 Hỗ Trợ)`;
-
-document.getElementById('modal-scanner-name').value = line.scannerName;
-
-document.getElementById('modal-scanner-id').value = line.scannerId;
-
-for (let s = 0; s < 4; s++) {
-
-document.getElementById(`modal-sup-${s}`).value = line.supporters[s] || '';
-
-}
-
-document.getElementById('modal-trucks-scanned').value = line.trucksScanned;
-
-document.getElementById('modal-target-hour').value = line.targetPerHour;
-
-
-
-updateModalStatusButtonUI(line.isOpen);
-
-
-
-const modal = document.getElementById('quick-edit-modal');
-
-modal.classList.remove('hidden');
-
-modal.classList.add('flex');
-
-}
-
-
-
-function updateModalStatusButtonUI(isOpen) {
-
-const btn = document.getElementById('modal-toggle-status-btn');
-
-btn.dataset.open = isOpen ? '1' : '0';
-
-if (isOpen) {
-
-btn.className = 'px-4 py-2 rounded-xl font-extrabold text-xs bg-emerald-500 text-slate-950 shadow';
-
-btn.textContent = '🟢 ĐANG MỞ (NHẤN ĐỂ TẮT)';
-
-} else {
-
-btn.className = 'px-4 py-2 rounded-xl font-extrabold text-xs bg-rose-600 text-white shadow';
-
-btn.textContent = '🔴 ĐANG TẮT (NHẤN ĐỂ MỞ)';
-
-}
-
-}
-
-
-
-function toggleModalLineStatus() {
-
-const btn = document.getElementById('modal-toggle-status-btn');
-
-const currentOpen = btn.dataset.open === '1';
-
-updateModalStatusButtonUI(!currentOpen);
-
-}
-
-
-
-function closeQuickEditModal() {
-
-const modal = document.getElementById('quick-edit-modal');
-
-modal.classList.add('hidden');
-
-modal.classList.remove('flex');
-
-editingLineIdx = null;
-
-}
-
-
-
-function saveQuickEditModal() {
-
-if (editingLineIdx === null) return;
-
-const line = state.lines[editingLineIdx];
-
-const btn = document.getElementById('modal-toggle-status-btn');
-
-
-
-line.isOpen = btn.dataset.open === '1';
-
-line.scannerName = document.getElementById('modal-scanner-name').value.trim() || line.scannerName;
-
-line.scannerId = document.getElementById('modal-scanner-id').value.trim() || line.scannerId;
-
-for (let s = 0; s < 4; s++) {
-
-line.supporters[s] = document.getElementById(`modal-sup-${s}`).value.trim() || `Hỗ trợ ${s + 1}`;
-
-}
-
-line.trucksScanned = Math.max(0, parseInt(document.getElementById('modal-trucks-scanned').value, 10) || 0);
-
-line.targetPerHour = Math.max(50, parseInt(document.getElementById('modal-target-hour').value, 10) || 240);
-
-
-
-saveState();
-
-closeQuickEditModal();
-
-renderAll();
-
-showToast(`Đã cập nhật ${line.name} thành công!`);
-
-}
-
-
-
-// ==================== TIỆN ÍCH HỆ THỐNG ====================
-
-function showToast(msg) {
-
-const toast = document.getElementById('sys-toast');
-
-document.getElementById('sys-toast-msg').textContent = msg;
-
-toast.classList.remove('opacity-0', 'translate-y-2');
-
-toast.classList.add('opacity-100', 'translate-y-0');
-
-clearTimeout(window.__toastTimer);
-
-window.__toastTimer = setTimeout(() => {
-
-toast.classList.remove('opacity-100', 'translate-y-0');
-
-toast.classList.add('opacity-0', 'translate-y-2');
-
-}, 2600);
-
-}
-
-
-
-function renderAll() {
-
-renderMasterPage();
-
-renderCrewManagementPage();
-
-renderApiPage();
-
-renderDashboardPage();
-
-}
-
-
-
-window.onload = function () {
-
-appendApiLog('Khởi động Hệ Thống Điều Hành 20 Đầu Nhận Băng Chuyền (Enterprise v4.0)...');
-
-appendApiLog('Đã kết nối dữ liệu 20 Line (20 Người Quét + 80 Người Hỗ Trợ) & Top 6 API Engine.');
-
-renderAll();
-
-startApiLoop();
-
-
-
-// Đồng hồ thời gian thực
-
-setInterval(() => {
-
-const now = new Date();
-
-const clockEl = document.getElementById('header-clock');
-
-if (clockEl) clockEl.textContent = now.toTimeString().split(' ')[0];
-
-}, 1000);
-
-};
-
-</script>
-
+    <!-- ==================== HEADER ĐIỀU HƯỚNG 4 PHÂN HỆ ==================== -->
+    <header class="h-14 bg-slate-900 border-b border-slate-800 px-3 lg:px-5 flex items-center justify-between shrink-0 z-50 shadow-lg">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-black text-slate-950 shadow-md shadow-cyan-500/20 text-xs">
+                20L
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-extrabold text-xs sm:text-sm tracking-wide text-white uppercase">
+                        Hệ Thống Băng Chuyền 20 Đầu Nhận
+                    </h1>
+                    <span class="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono-num font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">
+                        WMS ENTERPRISE v4.1
+                    </span>
+                </div>
+                <p class="text-[10px] text-slate-400 hidden sm:block">
+                    Giám Sát 20 Tele Line • 1 Quét + 4 Hỗ Trợ/Line • Top 6 API • Quản Lý Xe Tồn
+                </p>
+            </div>
+        </div>
+
+        <nav class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
+            <button id="nav-master" onclick="switchPage('master')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow">
+                1. Trang Tổng (20 Đầu Nhận)
+            </button>
+            <button id="nav-crew" onclick="switchPage('crew')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
+                2. Nhập Người Quét (1+4) &amp; Bật/Tắt Line
+            </button>
+            <button id="nav-api" onclick="switchPage('api')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
+                3. Trang Chạy API (API Engine)
+            </button>
+            <button id="nav-dashboard" onclick="switchPage('dashboard')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
+                4. Dashboard Chi Tiết (Line • Xe • Nhân Sự)
+            </button>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-3">
+            <div onclick="switchPage('api')" class="cursor-pointer flex items-center gap-2 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg hover:border-cyan-500/50 transition">
+                <span id="header-api-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="header-api-dot-solid" class="w-2 h-2 rounded-full bg-emerald-500 -ml-4"></span>
+                <span id="header-api-text" class="text-[11px] font-mono-num font-bold text-emerald-400">API RUNNING</span>
+            </div>
+            <div class="text-right">
+                <div id="header-clock" class="font-mono-num text-xs font-bold text-white">10:07:00</div>
+                <div id="header-active-slot" class="text-[10px] text-cyan-400 font-semibold">Khung 10:00 - 11:00</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== KHÔNG GIAN LÀM VIỆC CHÍNH ==================== -->
+    <main class="flex-1 overflow-hidden relative flex flex-col">
+
+        <!-- ===================================================================== -->
+        <!-- MODULE 1: TRANG TỔNG (20 ĐẦU NHẬN + TOP 6 API + XE TỒN + 3 CA)         -->
+        <!-- ===================================================================== -->
+        <section id="page-master" class="flex-1 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden bg-slate-950">
+
+            <div class="flex-1 flex flex-col h-full overflow-y-auto p-3 lg:p-4 space-y-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0">
+                    <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-emerald-500">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Trạng Thái 20 Đầu Line</div>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="m-kpi-open-lines" class="font-mono-num text-xl font-black text-emerald-400">16/20</span>
+                            <span id="m-kpi-off-lines" class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">4 Tắt</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Click nút nguồn trên line để Bật/Tắt</div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-cyan-500">
+                        <div id="m-kpi-hour-title" class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Đang Xem</div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="m-kpi-hour-vol" class="font-mono-num text-xl font-black text-cyan-400">0</span>
+                            <span class="text-[10px] text-slate-400">kiện</span>
+                        </div>
+                        <div id="m-kpi-hour-label" class="text-[10px] text-cyan-300 font-mono-num mt-0.5 truncate">Khung 10:00 - 11:00</div>
+                    </div>
+
+                    <div onclick="selectAllHoursView()" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-blue-500 hover:bg-slate-900 transition" title="Nhấn để xem Tất cả các khung giờ">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Tất Cả Các Giờ</div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="m-kpi-total-vol" class="font-mono-num text-xl font-black text-white">0</span>
+                            <span class="text-[10px] text-slate-400">kiện</span>
+                        </div>
+                        <div class="text-[10px] text-blue-300 mt-0.5">Tổng lũy kế cả 3 Ca (26h)</div>
+                    </div>
+
+                    <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-indigo-500">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Tổng Xe Đã Quét / Xả</div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="m-kpi-trucks-scanned" class="font-mono-num text-xl font-black text-indigo-400">0</span>
+                            <span class="text-[10px] text-slate-400">xe hoàn tất</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Cộng dồn từ 20 đầu nhận</div>
+                    </div>
+
+                    <div onclick="switchPage('dashboard')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-amber-500 hover:bg-slate-900 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] uppercase font-bold text-amber-300">Xe Tồn Chưa Xả</span>
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                        </div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="m-kpi-trucks-pending" class="font-mono-num text-xl font-black text-amber-400">0</span>
+                            <span class="text-[10px] text-amber-200">xe đang chờ</span>
+                        </div>
+                        <div id="m-kpi-pending-pkgs" class="text-[10px] text-slate-400 font-mono-num mt-0.5">~0 kiện tồn trên xe</div>
+                    </div>
+
+                    <div onclick="switchPage('crew')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-violet-500 hover:bg-slate-900 transition">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Nhân Sự Đang Đứng Line</div>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="m-kpi-active-staff" class="font-mono-num text-xl font-black text-violet-400">80/100</span>
+                            <span class="text-[10px] text-slate-400">người</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">1 Quét + 4 Hỗ trợ / Line Mở</div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                            SƠ ĐỒ BĂNG CHUYỀN 20 ĐẦU NHẬN (LINE 01 ➔ LINE 20)
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="setAll20LinesStatus(true)" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold transition">
+                            Bật Cả 20 Line
+                        </button>
+                        <button onclick="setAll20LinesStatus(false)" class="px-2.5 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[11px] font-bold transition">
+                            Tắt Toàn Bộ
+                        </button>
+                        <button onclick="triggerApiTick(true)" class="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold shadow transition">
+                            + Bắn API Tăng Sản Lượng Ngay
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-3 flex-1 flex flex-col justify-between space-y-2.5 min-h-[540px]">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5 px-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                ▼ DÃY ĐẦU NHẬN BẮC (DOCK 01 ➔ DOCK 10)
+                            </span>
+                            <span class="text-[10px] font-mono-num text-cyan-400">1 Người Quét + 4 Hỗ Trợ / Đầu Line</span>
+                        </div>
+                        <div id="north-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2"></div>
+                    </div>
+
+                    <div class="relative h-12 rounded-xl belt-main-horizontal border-2 border-cyan-500/50 shadow-inner flex items-center justify-between px-4 overflow-hidden my-1">
+                        <div class="z-10 bg-slate-950/90 border border-cyan-500/40 px-3 py-1 rounded-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                            <span class="text-[11px] font-extrabold tracking-wider uppercase text-cyan-300">
+                                BĂNG CHUYỀN CHÍNH TRUNG TÂM (20 TELE LINE MERGING BELT)
+                            </span>
+                        </div>
+                        <div class="z-10 bg-amber-500 text-slate-950 font-extrabold text-[11px] px-3 py-1 rounded-lg shadow flex items-center gap-1">
+                            <span>HƯỚNG RA PHÂN LOẠI (OUTBOUND)</span>
+                            <span>➔➔</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div id="south-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2"></div>
+                        <div class="flex items-center justify-between mt-1.5 px-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                ▲ DÃY ĐẦU NHẬN NAM (DOCK 11 ➔ DOCK 20) • Khi Line TẮT: Đổi màu nút sang Đỏ &amp; Tắt nhân viên
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="w-full xl:w-[410px] 2xl:w-[440px] bg-slate-900/95 border-t xl:border-t-0 xl:border-l border-slate-800 flex flex-col h-full overflow-y-auto p-3 space-y-3 shrink-0">
+                <div class="glass-panel rounded-xl p-3 border border-amber-500/40 shadow-lg">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">TOP 6 API</span>
+                                <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Sản Lượng Giờ Cao Nhất</h2>
+                            </div>
+                        </div>
+                        <span id="top6-slot-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                            10:00 - 11:00
+                        </span>
+                    </div>
+                    <div id="master-top6-list" class="space-y-1.5"></div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-3 border border-slate-800">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <div>
+                            <h2 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">
+                                Sản Lượng Tất Cả Các Giờ (Gom 3 Ca)
+                            </h2>
+                            <p class="text-[10px] text-slate-400">Nhấn vào Tất cả, Ca chính hoặc từng Ca nhỏ</p>
+                        </div>
+                        <span id="all-hours-grand-badge" class="text-[11px] font-mono-num font-bold text-emerald-400">Tổng: 0</span>
+                    </div>
+                    <div id="master-all-hours-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-3 border border-rose-500/30 flex-1 flex flex-col">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <div>
+                            <h2 class="text-xs font-extrabold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                                Xe Tồn Chưa Xả (<span id="sidebar-pending-count">0</span> Xe)
+                            </h2>
+                        </div>
+                        <button onclick="addNewPendingTruck()" class="px-2 py-1 rounded bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[10px] font-bold transition">
+                            + Thêm Xe Tồn
+                        </button>
+                    </div>
+                    <div id="master-pending-trucks-list" class="space-y-1.5 overflow-y-auto max-h-52 pr-1"></div>
+                </div>
+            </aside>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- MODULE 2: CODE NHẬP TÊN NGƯỜI QUÉT (1+4) & LINE STATUS                -->
+        <!-- ===================================================================== -->
+        <section id="page-crew" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-5 pb-12">
+                <div class="glass-panel rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border border-cyan-500/30">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold mb-1.5">
+                            PHÂN HỆ NHẬP TÊN NGƯỜI QUÉT &amp; ĐIỀU KHIỂN TRẠNG THÁI LINE
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-black text-white">Quản Lý Nhân Sự 20 Đầu Nhận (1 Người Quét Chính + 4 Người Hỗ Trợ)</h2>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <input id="crew-search-input" oninput="renderCrewManagementPage()" type="text" placeholder="Tìm Line hoặc tên NV..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 w-48">
+                        <button onclick="randomizeSampleCrew()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700 transition">
+                            Nạp Mẫu 100 Nhân Sự
+                        </button>
+                        <button onclick="saveCrewAllChanges()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-extrabold shadow-lg transition">
+                            Lưu &amp; Đồng Bộ Lên Trang Tổng
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                                    <th class="py-3 px-3 w-28">Đầu Nhận</th>
+                                    <th class="py-3 px-3 w-36">Trạng Thái Line</th>
+                                    <th class="py-3 px-3 min-w-[210px] text-cyan-300">1 Người Quét Chính (Scanner PIC)</th>
+                                    <th class="py-3 px-3 min-w-[440px] text-emerald-300">4 Người Hỗ Trợ Xả Hàng</th>
+                                    <th class="py-3 px-3 w-28 text-right">Số Xe Đã Quét</th>
+                                    <th class="py-3 px-3 w-28 text-right">Định Mức/Giờ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crew-20lines-tbody" class="divide-y divide-slate-800/80 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- MODULE 3: TRANG CHẠY API (API ENGINE)                                 -->
+        <!-- ===================================================================== -->
+        <section id="page-api" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-5 pb-12">
+                <div class="glass-panel rounded-2xl p-5 border border-emerald-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold mb-1.5">
+                            REAL-TIME WMS API ENGINE
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-black text-white">Trung Tâm Điều Khiển Luồng Chạy API Hệ Thống</h2>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                        <button id="api-toggle-btn" onclick="toggleApiEngine()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg flex items-center gap-2 transition">
+                            <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                            <span id="api-toggle-btn-text">API ĐANG CHẠY (NHẤN ĐỂ DỪNG)</span>
+                        </button>
+                        <button onclick="triggerApiTick(true)" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg transition">
+                            ⚡ Bắn 1 Chu Kỳ API Ngay
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="glass-panel rounded-2xl p-4 space-y-3 border border-slate-800">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">1. Cấu Hình Chu Kỳ Chạy API</h3>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 font-semibold mb-1">Khung Giờ API Hiện Tại</label>
+                            <select id="api-hour-select" onchange="changeActiveHour(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono-num text-cyan-300 font-bold"></select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2 text-center">
+                            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                                <div class="text-[10px] text-slate-400">Tổng Gói Tin</div>
+                                <div id="api-stat-packets" class="font-mono-num text-base font-black text-emerald-400">128</div>
+                            </div>
+                            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                                <div class="text-[10px] text-slate-400">Đồng Bộ Cuối</div>
+                                <div id="api-stat-lastsync" class="font-mono-num text-base font-black text-cyan-400">10:07</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-4 space-y-3 border border-slate-800">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">2. Bơm Sản Lượng API &amp; Đua Top 6</h3>
+                        <div class="flex gap-2">
+                            <select id="api-target-line-select" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white"></select>
+                            <button onclick="boostSelectedLineApi(50)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">+50 Kiện</button>
+                        </div>
+                        <button onclick="boostSelectedLineTruck()" class="w-full px-3 py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition">+1 Xe Đã Quét Cho Line</button>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-4 space-y-2 border border-slate-800">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">3. Top 6 Sản Lượng Giờ</h3>
+                        </div>
+                        <div id="api-page-top6-preview" class="space-y-1.5 text-xs"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">Nhật Ký Luồng Chạy API</span>
+                            <button onclick="clearApiLogs()" class="text-[11px] text-slate-400 hover:text-white">Xóa Log</button>
+                        </div>
+                        <div id="api-terminal-log" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono-num text-[11px] text-emerald-400 overflow-y-auto space-y-1"></div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">Cấu Trúc Gói Tin JSON API</span>
+                            <button onclick="copyApiJson()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white text-[11px] font-bold">Copy</button>
+                        </div>
+                        <pre id="api-json-inspector" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono-num text-[11px] text-cyan-300 overflow-auto leading-relaxed"></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- MODULE 4: DASHBOARD CHI TIẾT                                          -->
+        <!-- ===================================================================== -->
+        <section id="page-dashboard" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-6 pb-14">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="glass-panel p-3.5 rounded-2xl border border-slate-800">
+                        <div class="text-[10px] font-bold uppercase text-slate-400">Tổng Số Nhân Viên</div>
+                        <div id="db-kpi-total-staff" class="font-mono-num text-2xl font-black text-white mt-1">100</div>
+                    </div>
+                    <div class="glass-panel p-3.5 rounded-2xl border border-emerald-500/30">
+                        <div class="text-[10px] font-bold uppercase text-emerald-400">Đang Hoạt Động</div>
+                        <div id="db-kpi-active-staff" class="font-mono-num text-2xl font-black text-emerald-400 mt-1">80</div>
+                    </div>
+                    <div class="glass-panel p-3.5 rounded-2xl border border-cyan-500/30">
+                        <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-semibold">Tổng Sản Lượng</div>
+                        <div id="db-kpi-grand-vol" class="font-mono-num text-2xl font-black text-cyan-400 mt-1">0</div>
+                    </div>
+                    <div class="glass-panel p-3.5 rounded-2xl border border-indigo-500/30">
+                        <div class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Xe Đã Xả</div>
+                        <div id="db-kpi-completed-trucks" class="font-mono-num text-2xl font-black text-indigo-400 mt-1">0</div>
+                    </div>
+                    <div class="glass-panel p-3.5 rounded-2xl border border-amber-500/40">
+                        <div class="text-[10px] uppercase tracking-wider text-amber-400 font-semibold">Xe Tồn</div>
+                        <div id="db-kpi-pending-trucks" class="font-mono-num text-2xl font-black text-amber-400 mt-1">0</div>
+                    </div>
+                    <div class="glass-panel p-3.5 rounded-2xl border border-violet-500/30">
+                        <div class="text-[10px] uppercase tracking-wider text-violet-400 font-semibold">Năng Suất/NV</div>
+                        <div id="db-kpi-avg-staff" class="font-mono-num text-2xl font-black text-violet-400 mt-1">0</div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+                    <div class="px-5 py-3.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-cyan-400">A. Bảng Chi Tiết Thông Số 20 Line (3 Ca Chính)</h3>
+                        <select id="db-table-shift-filter" onchange="changeDashboardTableShiftFilter(this.value)" class="bg-slate-950 border border-cyan-500/50 rounded-lg px-3 py-1.5 text-xs font-bold text-cyan-300">
+                            <option value="ALL_SHIFTS">Tổng Hợp Cả 3 Ca</option>
+                            <option value="SHIFT_1">Ca 1 (06:00 - 15:00)</option>
+                            <option value="SHIFT_2">Ca 2 (13:00 - 22:00)</option>
+                            <option value="SHIFT_3">Ca 3 (22:00 - 06:00)</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto max-h-[440px]">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead id="db-20lines-detail-thead" class="sticky top-0 bg-slate-900 z-10 shadow"></thead>
+                            <tbody id="db-20lines-detail-tbody" class="divide-y divide-slate-800/70 font-mono-num"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/40 flex flex-col">
+                        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">B1. Danh Sách Xe Chưa Xả (Tồn Bãi)</h3>
+                            <button onclick="addNewPendingTruck()" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition">+ Thêm Xe Mới</button>
+                        </div>
+                        <div class="overflow-x-auto max-h-80">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <tbody id="db-pending-trucks-tbody" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-emerald-500/30 flex flex-col">
+                        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">B2. Danh Sách Xe Đã Được Xả</h3>
+                            <span id="db-completed-badge" class="text-xs font-mono-num font-bold text-emerald-300">0 chuyến</span>
+                        </div>
+                        <div class="overflow-x-auto max-h-80">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <tbody id="db-completed-trucks-tbody" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL -->
+    <div id="quick-edit-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl max-w-lg w-full p-5 border border-cyan-500/50 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="modal-line-title" class="text-base font-black text-cyan-400 uppercase">Cấu Hình LINE 01</h3>
+                <button onclick="closeQuickEditModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2">✕</button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <div>
+                        <div class="font-bold text-white">Trạng Thái Hoạt Động</div>
+                        <div class="text-[11px] text-slate-400">Nếu TẮT, nút đổi màu đỏ &amp; ẩn nhân viên</div>
+                    </div>
+                    <button id="modal-toggle-status-btn" onclick="toggleModalLineStatus()" class="px-4 py-2 rounded-xl font-extrabold text-xs transition">ĐANG MỞ</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2">
+                        <label class="block text-[11px] text-cyan-300 font-bold mb-1">1. Người Quét Chính (Scanner PIC)</label>
+                        <input id="modal-scanner-name" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 font-bold mb-1">Mã NV</label>
+                        <input id="modal-scanner-id" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono-num">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-emerald-300 font-bold mb-1">2. Bốn Người Hỗ Trợ Xả Hàng</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="modal-sup-0" type="text" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        <input id="modal-sup-1" type="text" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        <input id="modal-sup-2" type="text" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                        <input id="modal-sup-3" type="text" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button onclick="closeQuickEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">Hủy</button>
+                <button onclick="saveQuickEditModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="sys-toast" class="fixed bottom-4 right-4 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
+        <div class="bg-slate-900/95 border border-cyan-500/60 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <span id="sys-toast-msg" class="font-bold">Đã cập nhật hệ thống!</span>
+        </div>
+    </div>
+
+    <!-- SCRIPT ENGINE -->
+    <script>
+        const STORAGE_KEY = 'INBOUND_20LINES_ENTERPRISE_V3';
+
+        const SHIFT_DEFINITIONS = [
+            {
+                id: 'SHIFT_1',
+                name: 'Ca 1: 06h - 15h',
+                fullName: 'Ca 1 (06:00 - 15:00)',
+                badgeColor: 'text-cyan-300 bg-cyan-500/15 border-cyan-500/30',
+                activeBorder: 'border-cyan-400 bg-cyan-950/60',
+                slotIndices: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+            },
+            {
+                id: 'SHIFT_2',
+                name: 'Ca 2: 13h - 22h',
+                fullName: 'Ca 2 (13:00 - 22:00)',
+                badgeColor: 'text-amber-300 bg-amber-500/15 border-amber-500/30',
+                activeBorder: 'border-amber-400 bg-amber-950/60',
+                slotIndices: [9, 10, 11, 12, 13, 14, 15, 16, 17]
+            },
+            {
+                id: 'SHIFT_3',
+                name: 'Ca 3: 22h - 06h',
+                fullName: 'Ca 3 (22:00 - 06:00)',
+                badgeColor: 'text-violet-300 bg-violet-500/15 border-violet-500/30',
+                activeBorder: 'border-violet-400 bg-violet-950/60',
+                slotIndices: [18, 19, 20, 21, 22, 23, 24, 25]
+            }
+        ];
+
+        const MASTER_HOUR_SLOTS = [
+            '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00',
+            '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00',
+            '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00',
+            '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
+            '16:00 - 17:00', '17:00 - 18:00', '18:00 - 19:00',
+            '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
+            '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00',
+            '01:00 - 02:00', '02:00 - 03:00', '03:00 - 04:00',
+            '04:00 - 05:00', '05:00 - 06:00'
+        ];
+
+        const SAMPLE_SCANNERS = [
+            'Nguyễn Văn Hùng', 'Lê Thị Mỹ Duyên', 'Phạm Hoàng Nam', 'Võ Minh Tuấn', 'Đặng Quốc Khánh',
+            'Trần Bảo Ngọc', 'Hoàng Gia Bảo', 'Bùi Thanh Tùng', 'Ngô Thị Phương', 'Đỗ Minh Đức',
+            'Lý Quốc Cường', 'Phan Thành Đạt', 'Vũ Thị Mai Anh', 'Đinh Trọng Nghĩa', 'Trương Công Minh',
+            'Mai Xuân Trường', 'Hồ Thị Kim Ngân', 'Dương Quốc Việt', 'Lương Thế Vinh', 'Tạ Minh Quân'
+        ];
+
+        const LAST_NAMES = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ'];
+        const MID_NAMES = ['Văn', 'Minh', 'Quốc', 'Thanh', 'Đức', 'Thành', 'Hữu', 'Gia', 'Xuân', 'Ngọc'];
+        const FIRST_NAMES = ['An', 'Bình', 'Cường', 'Dũng', 'Hải', 'Hiếu', 'Khoa', 'Lâm', 'Long', 'Phúc', 'Sơn', 'Tâm', 'Thắng', 'Thịnh', 'Toàn', 'Trung', 'Tú', 'Việt', 'Vinh', 'Kiên'];
+
+        function generateSupportCrew(lineIdx) {
+            const crew = [];
+            for (let s = 0; s < 4; s++) {
+                const seed = lineIdx * 4 + s;
+                const ln = LAST_NAMES[seed % LAST_NAMES.length];
+                const mn = MID_NAMES[(seed * 3) % MID_NAMES.length];
+                const fn = FIRST_NAMES[(seed * 7) % FIRST_NAMES.length];
+                crew.push(`${ln} ${mn} ${fn}`);
+            }
+            return crew;
+        }
+
+        function createDefaultState() {
+            const closedDefaultIndices = [3, 8, 13, 18];
+            const lines = [];
+
+            for (let i = 0; i < 20; i++) {
+                const lineNum = String(i + 1).padStart(2, '0');
+                const isOpen = !closedDefaultIndices.includes(i);
+                const baseCounts = MASTER_HOUR_SLOTS.map((_, slotIdx) => {
+                    if (slotIdx <= 8) return 150 + ((i * 19 + slotIdx * 13) % 85);
+                    if (slotIdx <= 17) return 135 + ((i * 23 + slotIdx * 7) % 80);
+                    return 95 + ((i * 13 + slotIdx * 9) % 60);
+                });
+
+                lines.push({
+                    id: `LINE-${lineNum}`,
+                    code: `L${lineNum}`,
+                    name: `LINE ${lineNum}`,
+                    isOpen: isOpen,
+                    scannerName: SAMPLE_SCANNERS[i],
+                    scannerId: `NV-${101 + i}`,
+                    supporters: generateSupportCrew(i),
+                    targetPerHour: 240,
+                    trucksScanned: isOpen ? (3 + (i % 4)) : (1 + (i % 2)),
+                    hourlyCounts: baseCounts
+                });
+            }
+
+            const pendingTrucks = [
+                { id: 'TRK-801', plate: '51C-884.12', type: 'Cont 40ft', estBoxes: 1450, waitTime: '42 phút', gate: 'Bãi A1' },
+                { id: 'TRK-802', plate: '29H-409.55', type: 'Cont 40ft', estBoxes: 1320, waitTime: '35 phút', gate: 'Bãi A2' },
+                { id: 'TRK-803', plate: '60C-512.89', type: 'Cont 20ft', estBoxes: 780, waitTime: '28 phút', gate: 'Bãi B1' }
+            ];
+
+            const completedTrucks = [
+                { id: 'TRK-791', plate: '51C-332.10', lineName: 'LINE 01', scanner: SAMPLE_SCANNERS[0], boxes: 1280, completedAt: '09:42:15' },
+                { id: 'TRK-792', plate: '60H-991.20', lineName: 'LINE 03', scanner: SAMPLE_SCANNERS[2], boxes: 1410, completedAt: '09:50:08' }
+            ];
+
+            return {
+                activePage: 'master',
+                activeHourIndex: 4,
+                viewMode: 'SLOT',
+                activeShiftId: 'SHIFT_1',
+                expandedShifts: { SHIFT_1: true, SHIFT_2: false, SHIFT_3: false },
+                dashboardTableShiftFilter: 'ALL_SHIFTS',
+                hourSlots: MASTER_HOUR_SLOTS,
+                apiRunning: true,
+                apiIntervalMs: 2500,
+                apiPacketsCount: 142,
+                lastSyncTime: '10:07:00',
+                lines: lines,
+                pendingTrucks: pendingTrucks,
+                completedTrucks: completedTrucks
+            };
+        }
+
+        let state = loadState();
+        let apiTimerId = null;
+        let apiLogs = [];
+        let editingLineIdx = null;
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.lines) && parsed.lines.length === 20) {
+                        if (!parsed.viewMode) parsed.viewMode = 'SLOT';
+                        if (!parsed.activeShiftId) parsed.activeShiftId = 'SHIFT_1';
+                        if (!parsed.expandedShifts) parsed.expandedShifts = { SHIFT_1: true, SHIFT_2: false, SHIFT_3: false };
+                        parsed.hourSlots = MASTER_HOUR_SLOTS;
+                        return parsed;
+                    }
+                }
+            } catch (e) {}
+            return createDefaultState();
+        }
+
+        function saveState() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+        }
+
+        function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
+
+        function getShiftDef(shiftId) {
+            return SHIFT_DEFINITIONS.find(s => s.id === shiftId) || SHIFT_DEFINITIONS[0];
+        }
+
+        function getShiftForSlotIndex(slotIdx) {
+            return SHIFT_DEFINITIONS.find(s => s.slotIndices.includes(slotIdx)) || SHIFT_DEFINITIONS[0];
+        }
+
+        function getLineSlotVol(line, slotIdx = state.activeHourIndex) {
+            return Number(line.hourlyCounts[slotIdx] || 0);
+        }
+
+        function getLineShiftVol(line, shiftId = state.activeShiftId) {
+            const shift = getShiftDef(shiftId);
+            return shift.slotIndices.reduce((sum, idx) => sum + getLineSlotVol(line, idx), 0);
+        }
+
+        function getLineTotalVol(line) {
+            return line.hourlyCounts.reduce((a, b) => a + (Number(b) || 0), 0);
+        }
+
+        function getLineHourVol(line, customSlotIdx = null) {
+            if (customSlotIdx !== null) return getLineSlotVol(line, customSlotIdx);
+            if (state.viewMode === 'ALL') return getLineTotalVol(line);
+            if (state.viewMode === 'SHIFT') return getLineShiftVol(line, state.activeShiftId);
+            return getLineSlotVol(line, state.activeHourIndex);
+        }
+
+        function getSlotTotalAllLines(slotIdx = state.activeHourIndex) {
+            return state.lines.reduce((sum, l) => sum + getLineSlotVol(l, slotIdx), 0);
+        }
+
+        function getShiftTotalAllLines(shiftId) {
+            const shift = getShiftDef(shiftId);
+            return shift.slotIndices.reduce((sum, idx) => sum + getSlotTotalAllLines(idx), 0);
+        }
+
+        function getHourTotalAllLines() {
+            if (state.viewMode === 'ALL') return getGrandTotalAllHours();
+            if (state.viewMode === 'SHIFT') return getShiftTotalAllLines(state.activeShiftId);
+            return getSlotTotalAllLines(state.activeHourIndex);
+        }
+
+        function getGrandTotalAllHours() {
+            return state.lines.reduce((sum, l) => sum + getLineTotalVol(l), 0);
+        }
+
+        function getTotalScannedTrucks() {
+            return state.lines.reduce((sum, l) => sum + (Number(l.trucksScanned) || 0), 0);
+        }
+
+        function getActiveViewDisplayLabel() {
+            if (state.viewMode === 'ALL') return 'Tất Cả Khung Giờ (3 Ca)';
+            if (state.viewMode === 'SHIFT') return getShiftDef(state.activeShiftId).fullName;
+            const sh = getShiftForSlotIndex(state.activeHourIndex);
+            return `${sh.name.split(':')[0]} • ${state.hourSlots[state.activeHourIndex]}`;
+        }
+
+        function getTop6LinesForActiveHour() {
+            return state.lines.map((line, idx) => ({
+                idx: idx,
+                id: line.id,
+                name: line.name,
+                code: line.code,
+                isOpen: line.isOpen,
+                scannerName: line.scannerName,
+                trucksScanned: line.trucksScanned,
+                hourVol: getLineHourVol(line),
+                totalVol: getLineTotalVol(line),
+                target: line.targetPerHour
+            })).sort((a, b) => b.hourVol - a.hourVol).slice(0, 6);
+        }
+
+        function selectAllHoursView() {
+            state.viewMode = 'ALL';
+            saveState();
+            renderAll();
+            showToast('Đang hiển thị tổng số liệu TẤT CẢ CÁC KHUNG GIỜ (Cả 3 Ca)!');
+        }
+
+        function selectMainShiftView(shiftId) {
+            const shift = getShiftDef(shiftId);
+            state.viewMode = 'SHIFT';
+            state.activeShiftId = shiftId;
+            state.expandedShifts[shiftId] = true;
+            if (!shift.slotIndices.includes(state.activeHourIndex)) {
+                state.activeHourIndex = shift.slotIndices[0];
+            }
+            saveState();
+            renderAll();
+            showToast(`Đang hiển thị tổng số của ${shift.fullName}!`);
+        }
+
+        function toggleShiftAccordion(event, shiftId) {
+            event.stopPropagation();
+            state.expandedShifts[shiftId] = !state.expandedShifts[shiftId];
+            saveState();
+            renderMasterPage();
+        }
+
+        function switchPage(page) {
+            state.activePage = page;
+            ['master', 'crew', 'api', 'dashboard'].forEach(p => {
+                const sec = document.getElementById(`page-${p}`);
+                const nav = document.getElementById(`nav-${p}`);
+                if (sec) sec.classList.toggle('hidden', p !== page);
+                if (nav) {
+                    nav.className = p === page
+                        ? 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow'
+                        : 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800';
+                }
+            });
+            renderAll();
+        }
+
+        function renderMasterPage() {
+            const openLinesCount = state.lines.filter(l => l.isOpen).length;
+            const offLinesCount = 20 - openLinesCount;
+            const currentViewVol = getHourTotalAllLines();
+            const grandTotalVol = getGrandTotalAllHours();
+            const totalTrucksScanned = getTotalScannedTrucks();
+            const pendingTrucksCount = state.pendingTrucks.length;
+            const pendingEstBoxes = state.pendingTrucks.reduce((s, t) => s + t.estBoxes, 0);
+            const activeStaffCount = openLinesCount * 5;
+            const activeDisplayLabel = getActiveViewDisplayLabel();
+
+            document.getElementById('m-kpi-open-lines').textContent = `${openLinesCount}/20`;
+            document.getElementById('m-kpi-off-lines').textContent = `${offLinesCount} Tắt`;
+            document.getElementById('m-kpi-hour-vol').textContent = fmt(currentViewVol);
+            document.getElementById('m-kpi-hour-label').textContent = activeDisplayLabel;
+            document.getElementById('m-kpi-total-vol').textContent = fmt(grandTotalVol);
+            document.getElementById('m-kpi-trucks-scanned').textContent = fmt(totalTrucksScanned);
+            document.getElementById('m-kpi-trucks-pending').textContent = fmt(pendingTrucksCount);
+            document.getElementById('m-kpi-pending-pkgs').textContent = `~${fmt(pendingEstBoxes)} kiện chờ`;
+            document.getElementById('m-kpi-active-staff').textContent = `${activeStaffCount}/100`;
+
+            document.getElementById('header-active-slot').textContent = activeDisplayLabel;
+
+            const top6List = getTop6LinesForActiveHour();
+            const top6RankMap = {};
+            top6List.forEach((item, rIdx) => { top6RankMap[item.idx] = rIdx + 1; });
+
+            document.getElementById('north-lines-grid').innerHTML = state.lines.slice(0, 10).map((l, i) => buildLineCardHTML(l, i, 'NORTH', top6RankMap[i])).join('');
+            document.getElementById('south-lines-grid').innerHTML = state.lines.slice(10, 20).map((l, i) => buildLineCardHTML(l, i + 10, 'SOUTH', top6RankMap[i + 10])).join('');
+
+            document.getElementById('top6-slot-badge').textContent = activeDisplayLabel;
+            const maxTopVol = Math.max(1, top6List[0]?.hourVol || 1);
+            document.getElementById('master-top6-list').innerHTML = top6List.map((item, rIdx) => {
+                const pct = Math.min(100, Math.round((item.hourVol / maxTopVol) * 100));
+                const colors = ['bg-amber-400 text-slate-950', 'bg-slate-300 text-slate-950', 'bg-amber-600 text-white', 'bg-cyan-900 text-cyan-200'];
+                return `
+                    <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-5 h-5 rounded-md font-mono-num text-[10px] font-black flex items-center justify-center shrink-0 ${colors[rIdx] || 'bg-cyan-900 text-cyan-200'}">#${rIdx + 1}</span>
+                                <span class="font-mono-num font-black text-cyan-300 shrink-0">${item.name}</span>
+                                <span class="text-[11px] text-slate-300 truncate">${item.isOpen ? item.scannerName : '(Line đã tắt)'}</span>
+                            </div>
+                            <div class="text-right font-mono-num shrink-0">
+                                <span class="font-black text-amber-400 text-sm">${fmt(item.hourVol)}</span>
+                            </div>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1.5">
+                            <div class="h-full bg-gradient-to-r from-amber-500 to-cyan-400 rounded-full" style="width:${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('all-hours-grand-badge').textContent = `Tổng: ${fmt(grandTotalVol)}`;
+            const isAllSelected = state.viewMode === 'ALL';
+
+            const allHoursBtn = `
+                <div onclick="selectAllHoursView()" class="cursor-pointer flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-mono-num transition shadow ${isAllSelected ? 'bg-gradient-to-r from-cyan-900 to-blue-900 border-cyan-400 text-white font-black' : 'bg-slate-950 border-slate-700 text-slate-200 hover:bg-slate-800'}">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full ${isAllSelected ? 'bg-cyan-300 animate-ping' : 'bg-blue-400'}"></span>
+                        <span class="uppercase font-extrabold text-[11px] text-cyan-300">TẤT CẢ (Cả 3 Ca)</span>
+                    </div>
+                    <span class="text-sm font-black text-emerald-400">${fmt(grandTotalVol)} kiện</span>
+                </div>
+            `;
+
+            const shiftGroupsHTML = SHIFT_DEFINITIONS.map(shift => {
+                const shiftSum = getShiftTotalAllLines(shift.id);
+                const isShiftSelected = state.viewMode === 'SHIFT' && state.activeShiftId === shift.id;
+                const isExpanded = !!state.expandedShifts[shift.id];
+
+                const subSlotsHTML = shift.slotIndices.map(sIdx => {
+                    const isSlotSelected = state.viewMode === 'SLOT' && state.activeHourIndex === sIdx;
+                    const hrSum = getSlotTotalAllLines(sIdx);
+                    return `
+                        <div onclick="changeActiveHour(${sIdx})" class="cursor-pointer flex items-center justify-between pl-6 pr-2.5 py-1.5 rounded-lg border text-[11px] font-mono-num transition ${isSlotSelected ? 'bg-cyan-950 border-cyan-400 text-white font-bold' : 'bg-slate-950/50 border-slate-800 text-slate-300 hover:bg-slate-800/50'}">
+                            <span>${state.hourSlots[sIdx]}</span>
+                            <span class="${isSlotSelected ? 'text-cyan-300 font-black' : 'text-emerald-400 font-semibold'}">${fmt(hrSum)} kiện</span>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="rounded-xl border ${isShiftSelected ? shift.activeBorder : 'border-slate-800 bg-slate-950/40'} overflow-hidden transition">
+                        <div onclick="selectMainShiftView('${shift.id}')" class="cursor-pointer flex items-center justify-between px-3 py-2 hover:bg-slate-800/50 transition">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <button onclick="toggleShiftAccordion(event, '${shift.id}')" class="w-5 h-5 rounded bg-slate-800 flex items-center justify-center text-[10px] text-slate-300 shrink-0">${isExpanded ? '▼' : '▶'}</button>
+                                <div>
+                                    <span class="text-xs font-extrabold ${isShiftSelected ? 'text-white' : 'text-slate-100'}">${shift.name}</span>
+                                    <span class="text-[9px] px-1.5 py-0.2 rounded border font-mono-num ${shift.badgeColor}">${shift.slotIndices.length} khung</span>
+                                </div>
+                            </div>
+                            <span class="text-xs font-black ${isShiftSelected ? 'text-amber-300' : 'text-emerald-400'}">${fmt(shiftSum)} kiện</span>
+                        </div>
+                        <div class="${isExpanded ? 'block' : 'hidden'} px-2 pb-2 pt-1 space-y-1 border-t border-slate-800 bg-slate-950/60">${subSlotsHTML}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('master-all-hours-table').innerHTML = allHoursBtn + shiftGroupsHTML;
+            document.getElementById('sidebar-pending-count').textContent = pendingTrucksCount;
+
+            const pendingContainer = document.getElementById('master-pending-trucks-list');
+            pendingContainer.innerHTML = state.pendingTrucks.length === 0
+                ? `<div class="text-center py-4 text-xs text-emerald-400 font-bold">✓ Không còn xe tồn bãi!</div>`
+                : state.pendingTrucks.map((trk, tIdx) => `
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 flex items-center justify-between gap-2 text-xs">
+                        <div>
+                            <div class="font-mono-num font-bold text-amber-300">${trk.plate} <span class="text-[10px] text-slate-400">(${trk.type})</span></div>
+                            <div class="text-[10px] text-slate-400 font-mono-num">${fmt(trk.estBoxes)} kiện • Chờ: ${trk.waitTime}</div>
+                        </div>
+                        <button onclick="unloadPendingTruck(${tIdx})" class="px-2 py-1 rounded bg-emerald-600/25 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-[10px] font-bold">Xả Xe</button>
+                    </div>
+                `).join('');
+        }
+
+        function buildLineCardHTML(line, idx, direction, topRank) {
+            const hrVol = getLineHourVol(line);
+            const totVol = getLineTotalVol(line);
+            const isOpen = line.isOpen;
+
+            const cardStyle = isOpen ? 'bg-slate-900/95 border-cyan-500/50 shadow-md' : 'line-card-off opacity-75';
+            const powerBtnStyle = isOpen ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-rose-600 text-white font-black';
+            const beltClass = isOpen ? (direction === 'NORTH' ? 'belt-active-down' : 'belt-active-up') : 'belt-stopped';
+            const parcelAnim = direction === 'NORTH' ? 'parcel-down' : 'parcel-up';
+            const topBadgeHTML = topRank ? `<span class="px-1 py-0.2 rounded bg-amber-400 text-slate-950 font-mono-num font-black text-[9px]">TOP ${topRank}</span>` : '';
+
+            const staffSectionHTML = isOpen ? `
+                <div onclick="openQuickEditModal(${idx})" class="cursor-pointer bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 rounded-lg p-1.5 transition">
+                    <div class="text-[9px] text-cyan-400 font-bold uppercase truncate">1. ${line.scannerName}</div>
+                    <div class="text-[9px] text-slate-300 truncate mt-0.5">4 Hỗ trợ: ${line.supporters.map(s => s.split(' ').pop()).join(', ')}</div>
+                </div>
+            ` : `
+                <div onclick="openQuickEditModal(${idx})" class="cursor-pointer bg-slate-950/60 border border-rose-900/40 rounded-lg p-2 text-center">
+                    <div class="text-[10px] font-extrabold text-rose-400 uppercase">ĐẦU LINE ĐÃ TẮT</div>
+                    <div class="text-[9px] text-slate-500 mt-0.5">Đã tắt nhân viên</div>
+                </div>
+            `;
+
+            return `
+                <div class="rounded-xl border p-2 flex flex-col justify-between transition ${cardStyle}">
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                        <div class="flex items-center gap-1">
+                            <span class="font-mono-num text-xs font-black ${isOpen ? 'text-cyan-300' : 'text-slate-500'}">${line.code}</span>
+                            ${topBadgeHTML}
+                        </div>
+                        <button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[9px] uppercase tracking-wider transition ${powerBtnStyle}">${isOpen ? '● MỞ' : '✕ TẮT'}</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 bg-slate-950/70 rounded-lg p-1 mb-1.5 font-mono-num text-[10px]">
+                        <div>
+                            <span class="text-slate-400 block text-[8px] uppercase">Sản lượng</span>
+                            <span class="font-bold ${isOpen ? 'text-white' : 'text-slate-500'}">${fmt(hrVol)}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-slate-400 block text-[8px] uppercase">Xe Quét</span>
+                            <span class="font-bold ${isOpen ? 'text-indigo-400' : 'text-slate-500'}">${line.trucksScanned} xe</span>
+                        </div>
+                    </div>
+                    <div onclick="openQuickEditModal(${idx})" class="cursor-pointer relative h-9 w-full rounded-lg border ${isOpen ? 'border-slate-700' : 'border-slate-800'} overflow-hidden mb-1.5 flex items-center justify-center ${beltClass}">
+                        ${isOpen ? `<div class="w-3.5 h-2.5 rounded-sm bg-amber-400 border border-amber-200 absolute left-1/2 -translate-x-1/2 ${parcelAnim}"></div>` : `<span class="z-10 text-[9px] font-mono-num font-bold text-rose-400 bg-slate-950/90 px-1.5 py-0.2 rounded">NGƯNG</span>`}
+                    </div>
+                    ${staffSectionHTML}
+                </div>
+            `;
+        }
+
+        function toggleSingleLineStatus(idx) {
+            const line = state.lines[idx];
+            if (!line) return;
+            line.isOpen = !line.isOpen;
+            saveState();
+            renderAll();
+            showToast(line.isOpen ? `Đã MỞ ${line.name}!` : `Đã TẮT ${line.name} — Tên nhân viên đã ẩn trên Trang Tổng!`);
+        }
+
+        function setAll20LinesStatus(openState) {
+            state.lines.forEach(l => l.isOpen = openState);
+            saveState();
+            renderAll();
+            showToast(openState ? 'Đã MỞ toàn bộ 20 Đầu Nhận!' : 'Đã TẮT toàn bộ 20 Đầu Nhận!');
+        }
+
+        function renderCrewManagementPage() {
+            const searchVal = (document.getElementById('crew-search-input')?.value || '').trim().toLowerCase();
+            const tbody = document.getElementById('crew-20lines-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.lines.map((line, idx) => {
+                const matchText = `${line.name} ${line.scannerName} ${line.supporters.join(' ')}`.toLowerCase();
+                if (searchVal && !matchText.includes(searchVal)) return '';
+                return `
+                    <tr class="${line.isOpen ? 'bg-slate-950/40 hover:bg-slate-900/70' : 'bg-rose-950/10 opacity-75'} transition">
+                        <td class="py-3 px-3">
+                            <div class="font-mono-num font-black text-sm ${line.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${line.name}</div>
+                        </td>
+                        <td class="py-3 px-3">
+                            <button onclick="toggleSingleLineStatus(${idx})" class="w-full px-3 py-2 rounded-xl font-extrabold text-xs transition ${line.isOpen ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white'}">
+                                ${line.isOpen ? '🟢 ĐANG MỞ' : '🔴 ĐÃ TẮT'}
+                            </button>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="flex gap-1.5">
+                                <input id="crew-scanner-name-${idx}" type="text" value="${line.scannerName}" oninput="liveUpdateCrewRow(${idx})" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-semibold">
+                                <input id="crew-scanner-id-${idx}" type="text" value="${line.scannerId}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 font-mono-num">
+                            </div>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                <input id="crew-sup-${idx}-0" type="text" value="${line.supporters[0]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-1" type="text" value="${line.supporters[1]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-2" type="text" value="${line.supporters[2]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-3" type="text" value="${line.supporters[3]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            <input id="crew-trucks-${idx}" type="number" min="0" value="${line.trucksScanned}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num font-bold text-indigo-300">
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            <input id="crew-target-${idx}" type="number" min="50" value="${line.targetPerHour}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num text-slate-300">
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function liveUpdateCrewRow(idx) {
+            const line = state.lines[idx];
+            if (!line) return;
+            const scName = document.getElementById(`crew-scanner-name-${idx}`);
+            const scId = document.getElementById(`crew-scanner-id-${idx}`);
+            const trkInput = document.getElementById(`crew-trucks-${idx}`);
+            const tarInput = document.getElementById(`crew-target-${idx}`);
+
+            if (scName) line.scannerName = scName.value.trim() || 'Chưa phân công';
+            if (scId) line.scannerId = scId.value.trim() || `NV-${101 + idx}`;
+            for (let s = 0; s < 4; s++) {
+                const supInput = document.getElementById(`crew-sup-${idx}-${s}`);
+                if (supInput) line.supporters[s] = supInput.value.trim() || `Hỗ trợ ${s + 1}`;
+            }
+            if (trkInput) line.trucksScanned = Math.max(0, parseInt(trkInput.value, 10) || 0);
+            if (tarInput) line.targetPerHour = Math.max(50, parseInt(tarInput.value, 10) || 240);
+            saveState();
+        }
+
+        function saveCrewAllChanges() {
+            saveState();
+            renderAll();
+            switchPage('master');
+            showToast('Đã lưu danh sách nhân sự và đồng bộ thành công!');
+        }
+
+        function randomizeSampleCrew() {
+            state.lines.forEach((line, idx) => {
+                line.scannerName = SAMPLE_SCANNERS[(idx + Math.floor(Math.random() * 5)) % SAMPLE_SCANNERS.length];
+                line.supporters = generateSupportCrew(idx + Math.floor(Math.random() * 10));
+            });
+            saveState();
+            renderAll();
+            showToast('Đã nạp danh sách 100 nhân sự mẫu!');
+        }
+
+        function renderApiPage() {
+            const hrSelect = document.getElementById('api-hour-select');
+            if (hrSelect) {
+                hrSelect.innerHTML = SHIFT_DEFINITIONS.map(shift => `
+                    <optgroup label="${shift.fullName}">
+                        ${shift.slotIndices.map(sIdx => `<option value="${sIdx}" ${sIdx === state.activeHourIndex ? 'selected' : ''}>${shift.name} • ${state.hourSlots[sIdx]}</option>`).join('')}
+                    </optgroup>
+                `).join('');
+            }
+
+            const lineSelect = document.getElementById('api-target-line-select');
+            if (lineSelect && !lineSelect.innerHTML.trim()) {
+                lineSelect.innerHTML = state.lines.map((l, i) => `<option value="${i}">${l.name} - ${l.scannerName}</option>`).join('');
+            }
+
+            document.getElementById('api-stat-packets').textContent = fmt(state.apiPacketsCount);
+            document.getElementById('api-stat-lastsync').textContent = state.lastSyncTime;
+
+            const top6 = getTop6LinesForActiveHour();
+            document.getElementById('api-page-top6-preview').innerHTML = top6.map((item, idx) => `
+                <div class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 font-mono-num text-xs">
+                    <div><span class="text-amber-400 font-black mr-1.5">TOP ${idx + 1}</span><span class="text-cyan-300 font-bold">${item.name}</span></div>
+                    <span class="text-emerald-400 font-bold">${fmt(item.hourVol)} kiện/h</span>
+                </div>
+            `).join('');
+
+            const jsonPre = document.getElementById('api-json-inspector');
+            if (jsonPre) {
+                const payload = {
+                    api_status: "200 OK",
+                    active_view_mode: state.viewMode,
+                    active_view_label: getActiveViewDisplayLabel(),
+                    summary: {
+                        open_lines: state.lines.filter(l => l.isOpen).length,
+                        total_volume: getHourTotalAllLines(),
+                        grand_total: getGrandTotalAllHours()
+                    },
+                    top_6_lines: top6.map((t, i) => ({ rank: i + 1, line_id: t.id, volume: t.hourVol })),
+                    lines_20: state.lines.map(l => ({ line_id: l.id, status: l.isOpen ? "OPEN" : "OFF", volume: getLineHourVol(l) }))
+                };
+                jsonPre.textContent = JSON.stringify(payload, null, 2);
+            }
+        }
+
+        function appendApiLog(msg) {
+            const now = new Date().toTimeString().split(' ')[0];
+            apiLogs.unshift(`[${now}] ${msg}`);
+            if (apiLogs.length > 30) apiLogs.pop();
+            const logEl = document.getElementById('api-terminal-log');
+            if (logEl) logEl.innerHTML = apiLogs.map(l => `<div>${l}</div>`).join('');
+        }
+
+        function clearApiLogs() { apiLogs = []; appendApiLog('Đã làm mới Terminal.'); }
+
+        function triggerApiTick(isManual = false) {
+            let addedTotal = 0;
+            state.lines.forEach(line => {
+                if (line.isOpen && (isManual || Math.random() > 0.25)) {
+                    const delta = Math.floor(Math.random() * 5) + (isManual ? 4 : 1);
+                    line.hourlyCounts[state.activeHourIndex] = getLineSlotVol(line, state.activeHourIndex) + delta;
+                    addedTotal += delta;
+                }
+            });
+            state.apiPacketsCount += 1;
+            state.lastSyncTime = new Date().toTimeString().split(' ')[0];
+            saveState();
+            appendApiLog(`GET /api/v2/inbound ➔ +${addedTotal} kiện (${getActiveViewDisplayLabel()})`);
+            renderAll();
+            if (isManual) showToast(`API vừa đồng bộ +${addedTotal} kiện!`);
+        }
+
+        function startApiLoop() {
+            if (apiTimerId) clearInterval(apiTimerId);
+            apiTimerId = setInterval(() => { if (state.apiRunning) triggerApiTick(false); }, state.apiIntervalMs);
+        }
+
+        function toggleApiEngine() {
+            state.apiRunning = !state.apiRunning;
+            saveState();
+            renderAll();
+            showToast(state.apiRunning ? 'Đã BẬT API tự động!' : 'Đã TẠM DỪNG API!');
+        }
+
+        function changeActiveHour(hrIdx) {
+            state.activeHourIndex = parseInt(hrIdx, 10);
+            state.viewMode = 'SLOT';
+            const parentShift = getShiftForSlotIndex(state.activeHourIndex);
+            if (parentShift) state.activeShiftId = parentShift.id;
+            saveState();
+            renderAll();
+        }
+
+        function boostSelectedLineApi(amount) {
+            const idx = parseInt(document.getElementById('api-target-line-select')?.value || '0', 10);
+            const line = state.lines[idx];
+            if (!line) return;
+            line.isOpen = true;
+            line.hourlyCounts[state.activeHourIndex] = getLineSlotVol(line, state.activeHourIndex) + amount;
+            saveState();
+            renderAll();
+            showToast(`Đã cộng +${amount} kiện cho ${line.name}!`);
+        }
+
+        function boostSelectedLineTruck() {
+            const idx = parseInt(document.getElementById('api-target-line-select')?.value || '0', 10);
+            const line = state.lines[idx];
+            if (!line) return;
+            line.trucksScanned += 1;
+            saveState();
+            renderAll();
+            showToast(`Đã cộng +1 xe cho ${line.name}!`);
+        }
+
+        function addNewPendingTruck() {
+            const plates = ['51C-902.41', '29H-771.08', '60C-389.12'];
+            const newTruck = {
+                id: `TRK-${810 + state.pendingTrucks.length}`,
+                plate: plates[Math.floor(Math.random() * plates.length)],
+                type: 'Cont 40ft',
+                estBoxes: 1350,
+                waitTime: 'Vừa đến',
+                gate: 'Bãi Chờ A1'
+            };
+            state.pendingTrucks.unshift(newTruck);
+            saveState();
+            renderAll();
+            showToast(`Đã thêm xe tồn ${newTruck.plate}!`);
+        }
+
+        function unloadPendingTruck(pendingIdx) {
+            const trk = state.pendingTrucks[pendingIdx];
+            if (!trk) return;
+            const openLines = state.lines.filter(l => l.isOpen);
+            if (openLines.length === 0) { showToast('Cả 20 Line đang TẮT!'); return; }
+            const assignedLine = openLines[pendingIdx % openLines.length];
+            assignedLine.trucksScanned += 1;
+            state.pendingTrucks.splice(pendingIdx, 1);
+            state.completedTrucks.unshift({
+                id: trk.id, plate: trk.plate, lineName: assignedLine.name,
+                scanner: assignedLine.scannerName, boxes: trk.estBoxes,
+                completedAt: new Date().toTimeString().split(' ')[0]
+            });
+            saveState();
+            renderAll();
+            showToast(`Đã xả xong xe ${trk.plate} tại ${assignedLine.name}!`);
+        }
+
+        function changeDashboardTableShiftFilter(val) {
+            state.dashboardTableShiftFilter = val;
+            renderDashboardPage();
+        }
+
+        function renderDashboardPage() {
+            const openLines = state.lines.filter(l => l.isOpen);
+            const activeStaff = openLines.length * 5;
+            const grandVol = getGrandTotalAllHours();
+            const totalTrucks = getTotalScannedTrucks();
+            const avgPerStaff = activeStaff > 0 ? Math.round(grandVol / activeStaff) : 0;
+
+            document.getElementById('db-kpi-active-staff').textContent = fmt(activeStaff);
+            document.getElementById('db-kpi-grand-vol').textContent = fmt(grandVol);
+            document.getElementById('db-kpi-completed-trucks').textContent = fmt(totalTrucks);
+            document.getElementById('db-kpi-pending-trucks').textContent = fmt(state.pendingTrucks.length);
+            document.getElementById('db-kpi-avg-staff').textContent = fmt(avgPerStaff);
+
+            const detailThead = document.getElementById('db-20lines-detail-thead');
+            const detailTbody = document.getElementById('db-20lines-detail-tbody');
+
+            if (detailThead && detailTbody) {
+                if (state.dashboardTableShiftFilter === 'ALL_SHIFTS') {
+                    detailThead.innerHTML = `
+                        <tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <th class="py-2.5 px-3">Line</th>
+                            <th class="py-2.5 px-2">Trạng Thái</th>
+                            <th class="py-2.5 px-3">Người Quét Chính</th>
+                            <th class="py-2.5 px-2 text-right">Xe Xả</th>
+                            <th class="py-2.5 px-3 text-right text-cyan-300">Ca 1 (06h-15h)</th>
+                            <th class="py-2.5 px-3 text-right text-amber-300">Ca 2 (13h-22h)</th>
+                            <th class="py-2.5 px-3 text-right text-violet-300">Ca 3 (22h-06h)</th>
+                            <th class="py-2.5 px-3 text-right text-emerald-400 font-extrabold">Tổng Cả Ngày</th>
+                        </tr>
+                    `;
+                    detailTbody.innerHTML = state.lines.map((l, idx) => `
+                        <tr class="${l.isOpen ? 'hover:bg-slate-900/70' : 'bg-rose-950/15 text-slate-500'} transition">
+                            <td class="py-2 px-3 font-bold ${l.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${l.name}</td>
+                            <td class="py-2 px-2"><button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${l.isOpen ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${l.isOpen ? 'MỞ' : 'TẮT'}</button></td>
+                            <td class="py-2 px-3 font-sans font-semibold ${l.isOpen ? 'text-white' : 'line-through text-slate-600'}">${l.isOpen ? l.scannerName : 'Đã tắt'}</td>
+                            <td class="py-2 px-2 text-right font-bold text-indigo-400">${l.trucksScanned}</td>
+                            <td class="py-2 px-3 text-right font-bold text-cyan-300">${fmt(getLineShiftVol(l, 'SHIFT_1'))}</td>
+                            <td class="py-2 px-3 text-right font-bold text-amber-300">${fmt(getLineShiftVol(l, 'SHIFT_2'))}</td>
+                            <td class="py-2 px-3 text-right font-bold text-violet-300">${fmt(getLineShiftVol(l, 'SHIFT_3'))}</td>
+                            <td class="py-2 px-3 text-right font-extrabold text-emerald-400">${fmt(getLineTotalVol(l))}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            document.getElementById('db-pending-trucks-tbody').innerHTML = state.pendingTrucks.map((t, i) => `
+                <tr class="hover:bg-slate-900/60 text-xs">
+                    <td class="py-2.5 px-3 font-mono-num font-bold text-amber-300">${t.plate}</td>
+                    <td class="py-2.5 px-2 text-right font-mono-num text-white">${fmt(t.estBoxes)} kiện</td>
+                    <td class="py-2.5 px-3 text-right"><button onclick="unloadPendingTruck(${i})" class="px-2 py-1 rounded bg-emerald-600 text-white font-bold text-[10px]">Xả Xe</button></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('db-completed-badge').textContent = `${state.completedTrucks.length} chuyến`;
+            document.getElementById('db-completed-trucks-tbody').innerHTML = state.completedTrucks.map(c => `
+                <tr class="hover:bg-slate-900/60 text-xs">
+                    <td class="py-2.5 px-3 font-mono-num font-bold text-emerald-300">${c.plate}</td>
+                    <td class="py-2.5 px-2 font-mono-num font-bold text-cyan-400">${c.lineName}</td>
+                    <td class="py-2.5 px-2 text-right font-mono-num text-white">${fmt(c.boxes)} kiện</td>
+                </tr>
+            `).join('');
+        }
+
+        function openQuickEditModal(idx) {
+            editingLineIdx = idx;
+            const line = state.lines[idx];
+            if (!line) return;
+            document.getElementById('modal-line-title').textContent = `Cấu Hình ${line.name}`;
+            document.getElementById('modal-scanner-name').value = line.scannerName;
+            document.getElementById('modal-scanner-id').value = line.scannerId;
+            for (let s = 0; s < 4; s++) {
+                document.getElementById(`modal-sup-${s}`).value = line.supporters[s] || '';
+            }
+            updateModalStatusButtonUI(line.isOpen);
+            const modal = document.getElementById('quick-edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function updateModalStatusButtonUI(isOpen) {
+            const btn = document.getElementById('modal-toggle-status-btn');
+            btn.dataset.open = isOpen ? '1' : '0';
+            btn.className = isOpen ? 'px-4 py-2 rounded-xl font-extrabold text-xs bg-emerald-500 text-slate-950' : 'px-4 py-2 rounded-xl font-extrabold text-xs bg-rose-600 text-white';
+            btn.textContent = isOpen ? '🟢 ĐANG MỞ' : '🔴 ĐANG TẮT';
+        }
+
+        function toggleModalLineStatus() {
+            const btn = document.getElementById('modal-toggle-status-btn');
+            updateModalStatusButtonUI(btn.dataset.open !== '1');
+        }
+
+        function closeQuickEditModal() {
+            document.getElementById('quick-edit-modal').classList.add('hidden');
+            document.getElementById('quick-edit-modal').classList.remove('flex');
+            editingLineIdx = null;
+        }
+
+        function saveQuickEditModal() {
+            if (editingLineIdx === null) return;
+            const line = state.lines[editingLineIdx];
+            line.isOpen = document.getElementById('modal-toggle-status-btn').dataset.open === '1';
+            line.scannerName = document.getElementById('modal-scanner-name').value.trim() || line.scannerName;
+            line.scannerId = document.getElementById('modal-scanner-id').value.trim() || line.scannerId;
+            for (let s = 0; s < 4; s++) {
+                line.supporters[s] = document.getElementById(`modal-sup-${s}`).value.trim() || `Hỗ trợ ${s+1}`;
+            }
+            saveState();
+            closeQuickEditModal();
+            renderAll();
+            showToast(`Đã cập nhật ${line.name}!`);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('sys-toast');
+            document.getElementById('sys-toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2600);
+        }
+
+        function renderAll() {
+            renderMasterPage();
+            renderCrewManagementPage();
+            renderApiPage();
+            renderDashboardPage();
+        }
+
+        window.onload = function () {
+            renderAll();
+            startApiLoop();
+            setInterval(() => {
+                const now = new Date();
+                const clockEl = document.getElementById('header-clock');
+                if (clockEl) clockEl.textContent = now.toTimeString().split(' ')[0];
+            }, 1000);
+        };
+    </script>
 </body>
-
-</html> 
+</html>
