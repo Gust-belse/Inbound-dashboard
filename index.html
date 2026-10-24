@@ -2,14 +2,14 @@
 <html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hệ Thống Điều Hành 20 Đầu Nhận Băng Chuyền - Inbound Operations Hub</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             margin: 0;
             padding: 0;
@@ -24,7 +24,7 @@
             font-variant-numeric: tabular-nums;
         }
         /* Custom Industrial Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #090e1a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
@@ -84,103 +84,155 @@
             background: rgba(15, 23, 42, 0.45) !important;
             border-color: rgba(71, 85, 105, 0.45) !important;
         }
+        /* Prevent iOS zoom on input focus */
+        @media screen and (max-width: 768px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden">
+<body class="min-h-screen xl:h-screen w-screen flex flex-col bg-slate-950 text-slate-100 xl:overflow-hidden">
 
-    <!-- ==================== HEADER ĐIỀU HƯỚNG 4 PHÂN HỆ ==================== -->
-    <header class="h-14 bg-slate-900 border-b border-slate-800 px-3 lg:px-5 flex items-center justify-between shrink-0 z-50 shadow-lg">
-        <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-black text-slate-950 shadow-md shadow-cyan-500/20 text-xs">
+    <!-- ==================== HEADER ĐIỀU HƯỚNG (TỐI ƯU MOBILE + PC) ==================== -->
+    <header class="sticky top-0 h-14 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 lg:px-5 flex items-center justify-between shrink-0 z-40 shadow-lg">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-black text-slate-950 shadow-md shadow-cyan-500/20 text-xs shrink-0">
                 20L
             </div>
-            <div>
+            <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                    <h1 class="font-extrabold text-xs sm:text-sm tracking-wide text-white uppercase">
+                    <h1 class="font-extrabold text-xs sm:text-sm tracking-wide text-white uppercase truncate">
                         Hệ Thống Băng Chuyền 20 Đầu Nhận
                     </h1>
-                    <span class="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono-num font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">
-                        WMS ENTERPRISE v4.1
+                    <span class="hidden 2xl:inline-block px-2 py-0.5 text-[10px] font-mono-num font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded shrink-0">
+                        MOBILE &amp; PC READY
                     </span>
                 </div>
-                <p class="text-[10px] text-slate-400 hidden sm:block">
-                    Giám Sát 20 Tele Line • 1 Quét + 4 Hỗ Trợ/Line • Top 6 API • Quản Lý Xe Tồn
+                <p class="text-[10px] text-slate-400 truncate">
+                    <span id="header-active-slot" class="text-cyan-400 font-semibold">Ca 1 • 10:00 - 11:00</span>
+                    <span class="hidden sm:inline"> • 1 Quét + 4 Hỗ Trợ/Line • Top 6 API</span>
                 </p>
             </div>
         </div>
 
-        <nav class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
+        <!-- Menu Trên Máy Tính (Desktop Navigation) -->
+        <nav class="hidden lg:flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
             <button id="nav-master" onclick="switchPage('master')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow">
-                1. Trang Tổng (20 Đầu Nhận)
+                1. Trang Tổng (20 Line)
             </button>
             <button id="nav-crew" onclick="switchPage('crew')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                2. Nhập Người Quét (1+4) &amp; Bật/Tắt Line
+                2. Nhập Người Quét (1+4)
             </button>
             <button id="nav-api" onclick="switchPage('api')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                3. Trang Chạy API (API Engine)
+                3. Chạy API
             </button>
             <button id="nav-dashboard" onclick="switchPage('dashboard')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                4. Dashboard Chi Tiết (Line • Xe • Nhân Sự)
+                4. Dashboard Chi Tiết
+            </button>
+            <button id="nav-github" onclick="switchPage('github')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-amber-300 hover:text-white hover:bg-slate-800">
+                📦 5. Code GitHub (4 File)
             </button>
         </nav>
 
-        <div class="hidden md:flex items-center gap-3">
-            <div onclick="switchPage('api')" class="cursor-pointer flex items-center gap-2 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg hover:border-cyan-500/50 transition">
+        <!-- Trạng thái API & Đồng hồ (Hiển thị gọn trên cả Điện Thoại & PC) -->
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="switchPage('api')" class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg hover:border-cyan-500/50 transition">
                 <span id="header-api-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span id="header-api-dot-solid" class="w-2 h-2 rounded-full bg-emerald-500 -ml-4"></span>
-                <span id="header-api-text" class="text-[11px] font-mono-num font-bold text-emerald-400">API RUNNING</span>
-            </div>
-            <div class="text-right">
+                <span id="header-api-dot-solid" class="w-2 h-2 rounded-full bg-emerald-500 -ml-3.5"></span>
+                <span id="header-api-text" class="text-[10px] sm:text-[11px] font-mono-num font-bold text-emerald-400">API ON</span>
+            </button>
+            <div class="text-right hidden sm:block">
                 <div id="header-clock" class="font-mono-num text-xs font-bold text-white">10:07:00</div>
-                <div id="header-active-slot" class="text-[10px] text-cyan-400 font-semibold">Khung 10:00 - 11:00</div>
+                <div class="text-[9px] text-slate-400">Real-time Sync</div>
             </div>
         </div>
     </header>
 
+    <!-- ==================== THANH ĐIỀU HƯỚNG ĐÁY CHO ĐIỆN THOẠI (MOBILE BOTTOM BAR) ==================== -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-5 z-50 px-1 shadow-2xl">
+        <button id="mnav-master" onclick="switchPage('master')" class="flex flex-col items-center justify-center gap-0.5 text-cyan-400 font-bold">
+            <span class="text-base leading-none">🏭</span>
+            <span class="text-[10px] tracking-tight">Trang Tổng</span>
+        </button>
+        <button id="mnav-crew" onclick="switchPage('crew')" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 font-semibold">
+            <span class="text-base leading-none">👥</span>
+            <span class="text-[10px] tracking-tight">Nhập NV</span>
+        </button>
+        <button id="mnav-api" onclick="switchPage('api')" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 font-semibold">
+            <span class="text-base leading-none">⚡</span>
+            <span class="text-[10px] tracking-tight">Chạy API</span>
+        </button>
+        <button id="mnav-dashboard" onclick="switchPage('dashboard')" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 font-semibold">
+            <span class="text-base leading-none">📊</span>
+            <span class="text-[10px] tracking-tight">Dashboard</span>
+        </button>
+        <button id="mnav-github" onclick="switchPage('github')" class="flex flex-col items-center justify-center gap-0.5 text-amber-300 font-semibold">
+            <span class="text-base leading-none">📦</span>
+            <span class="text-[10px] tracking-tight">4 File Git</span>
+        </button>
+    </nav>
+
     <!-- ==================== KHÔNG GIAN LÀM VIỆC CHÍNH ==================== -->
-    <main class="flex-1 overflow-hidden relative flex flex-col">
+    <main class="flex-1 xl:overflow-hidden relative flex flex-col pb-20 lg:pb-0">
 
         <!-- ===================================================================== -->
         <!-- MODULE 1: TRANG TỔNG (20 ĐẦU NHẬN + TOP 6 API + XE TỒN + 3 CA)         -->
         <!-- ===================================================================== -->
-        <section id="page-master" class="flex-1 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden bg-slate-950">
+        <section id="page-master" class="flex-1 flex flex-col xl:flex-row xl:overflow-hidden bg-slate-950">
 
-            <div class="flex-1 flex flex-col h-full overflow-y-auto p-3 lg:p-4 space-y-3">
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0">
+            <!-- Thanh Chuyển Nhanh Khu Vực Trên Điện Thoại (Chỉ hiện trên Mobile/Tablet) -->
+            <div class="xl:hidden sticky top-14 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 py-2 flex items-center gap-1.5 overflow-x-auto">
+                <button id="m-sub-all" onclick="setMobileMasterSubView('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-600 text-white shadow">
+                    Xem Tất Cả
+                </button>
+                <button id="m-sub-lines" onclick="setMobileMasterSubView('LINES')" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300">
+                    20 Đầu Line
+                </button>
+                <button id="m-sub-shifts" onclick="setMobileMasterSubView('SHIFTS')" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-amber-300">
+                    Top 6 &amp; 3 Ca Giờ
+                </button>
+                <button id="m-sub-trucks" onclick="setMobileMasterSubView('TRUCKS')" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-rose-300">
+                    Xe Tồn Chưa Xả
+                </button>
+            </div>
+
+            <!-- Cột Trái / Chính: KPI + Sơ đồ 20 Line -->
+            <div id="master-left-pane" class="flex-1 flex flex-col xl:h-full xl:overflow-y-auto p-2.5 sm:p-3 lg:p-4 space-y-3">
+                <!-- 6 Thẻ KPI Tổng Quan (2 cột trên Điện thoại, 3 cột trên Tablet, 6 cột trên PC) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 shrink-0">
                     <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-emerald-500">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Trạng Thái 20 Đầu Line</div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Trạng Thái 20 Line</div>
                         <div class="flex items-baseline justify-between mt-1">
-                            <span id="m-kpi-open-lines" class="font-mono-num text-xl font-black text-emerald-400">16/20</span>
+                            <span id="m-kpi-open-lines" class="font-mono-num text-lg sm:text-xl font-black text-emerald-400">16/20</span>
                             <span id="m-kpi-off-lines" class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">4 Tắt</span>
                         </div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">Click nút nguồn trên line để Bật/Tắt</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5 truncate">Chạm nút để Bật/Tắt</div>
                     </div>
 
                     <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-cyan-500">
                         <div id="m-kpi-hour-title" class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Đang Xem</div>
                         <div class="flex items-baseline gap-1 mt-1">
-                            <span id="m-kpi-hour-vol" class="font-mono-num text-xl font-black text-cyan-400">0</span>
+                            <span id="m-kpi-hour-vol" class="font-mono-num text-lg sm:text-xl font-black text-cyan-400">0</span>
                             <span class="text-[10px] text-slate-400">kiện</span>
                         </div>
                         <div id="m-kpi-hour-label" class="text-[10px] text-cyan-300 font-mono-num mt-0.5 truncate">Khung 10:00 - 11:00</div>
                     </div>
 
-                    <div onclick="selectAllHoursView()" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-blue-500 hover:bg-slate-900 transition" title="Nhấn để xem Tất cả các khung giờ">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Sản Lượng Tất Cả Các Giờ</div>
+                    <div onclick="selectAllHoursView()" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-blue-500 hover:bg-slate-900 active:scale-[0.99] transition" title="Nhấn để xem Tất cả các khung giờ">
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Tất Cả Các Giờ</div>
                         <div class="flex items-baseline gap-1 mt-1">
-                            <span id="m-kpi-total-vol" class="font-mono-num text-xl font-black text-white">0</span>
+                            <span id="m-kpi-total-vol" class="font-mono-num text-lg sm:text-xl font-black text-white">0</span>
                             <span class="text-[10px] text-slate-400">kiện</span>
                         </div>
-                        <div class="text-[10px] text-blue-300 mt-0.5">Tổng lũy kế cả 3 Ca (26h)</div>
+                        <div class="text-[10px] text-blue-300 mt-0.5 truncate">Chạm xem tổng 3 Ca</div>
                     </div>
 
                     <div class="glass-panel rounded-xl p-2.5 border-l-4 border-l-indigo-500">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Tổng Xe Đã Quét / Xả</div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Tổng Xe Đã Quét</div>
                         <div class="flex items-baseline gap-1 mt-1">
-                            <span id="m-kpi-trucks-scanned" class="font-mono-num text-xl font-black text-indigo-400">0</span>
-                            <span class="text-[10px] text-slate-400">xe hoàn tất</span>
+                            <span id="m-kpi-trucks-scanned" class="font-mono-num text-lg sm:text-xl font-black text-indigo-400">0</span>
+                            <span class="text-[10px] text-slate-400">xe</span>
                         </div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">Cộng dồn từ 20 đầu nhận</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5 truncate">Cộng dồn 20 đầu nhận</div>
                     </div>
 
                     <div onclick="switchPage('dashboard')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-amber-500 hover:bg-slate-900 transition">
@@ -189,119 +241,123 @@
                             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
                         </div>
                         <div class="flex items-baseline gap-1 mt-1">
-                            <span id="m-kpi-trucks-pending" class="font-mono-num text-xl font-black text-amber-400">0</span>
-                            <span class="text-[10px] text-amber-200">xe đang chờ</span>
+                            <span id="m-kpi-trucks-pending" class="font-mono-num text-lg sm:text-xl font-black text-amber-400">0</span>
+                            <span class="text-[10px] text-amber-200">xe chờ</span>
                         </div>
-                        <div id="m-kpi-pending-pkgs" class="text-[10px] text-slate-400 font-mono-num mt-0.5">~0 kiện tồn trên xe</div>
+                        <div id="m-kpi-pending-pkgs" class="text-[10px] text-slate-400 font-mono-num mt-0.5 truncate">~0 kiện tồn</div>
                     </div>
 
                     <div onclick="switchPage('crew')" class="cursor-pointer glass-panel rounded-xl p-2.5 border-l-4 border-l-violet-500 hover:bg-slate-900 transition">
-                        <div class="text-[10px] uppercase font-bold text-slate-400">Nhân Sự Đang Đứng Line</div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Nhân Sự Mở Line</div>
                         <div class="flex items-baseline justify-between mt-1">
-                            <span id="m-kpi-active-staff" class="font-mono-num text-xl font-black text-violet-400">80/100</span>
-                            <span class="text-[10px] text-slate-400">người</span>
+                            <span id="m-kpi-active-staff" class="font-mono-num text-lg sm:text-xl font-black text-violet-400">80/100</span>
+                            <span class="text-[10px] text-slate-400">NV</span>
                         </div>
-                        <div class="text-[10px] text-slate-400 mt-0.5">1 Quét + 4 Hỗ trợ / Line Mở</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5 truncate">1 Quét + 4 Hỗ trợ</div>
                     </div>
                 </div>
 
-                <div class="glass-panel rounded-xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-                            SƠ ĐỒ BĂNG CHUYỀN 20 ĐẦU NHẬN (LINE 01 ➔ LINE 20)
+                <!-- Thanh Công Cụ Điều Khiển Nhanh 20 Line -->
+                <div class="glass-panel rounded-xl px-3 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shrink-0"></span>
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">
+                            SƠ ĐỒ 20 ĐẦU NHẬN (LINE 01 ➔ LINE 20)
                         </span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="setAll20LinesStatus(true)" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-[11px] font-bold transition">
+                    <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+                        <button onclick="setAll20LinesStatus(true)" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 text-xs font-bold transition">
                             Bật Cả 20 Line
                         </button>
-                        <button onclick="setAll20LinesStatus(false)" class="px-2.5 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[11px] font-bold transition">
+                        <button onclick="setAll20LinesStatus(false)" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-xs font-bold transition">
                             Tắt Toàn Bộ
                         </button>
-                        <button onclick="triggerApiTick(true)" class="px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold shadow transition">
-                            + Bắn API Tăng Sản Lượng Ngay
+                        <button onclick="triggerApiTick(true)" class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow transition">
+                            + Bắn API Tăng Sản Lượng
                         </button>
                     </div>
                 </div>
 
-                <div class="glass-panel rounded-2xl p-3 flex-1 flex flex-col justify-between space-y-2.5 min-h-[540px]">
+                <!-- Sơ Đồ Băng Chuyền 20 Đầu Nhận (2 cột trên ĐT, 5 cột trên Tablet, 10 cột trên PC) -->
+                <div class="glass-panel rounded-2xl p-2.5 sm:p-3 flex-1 flex flex-col justify-between space-y-3">
                     <div>
-                        <div class="flex items-center justify-between mb-1.5 px-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                ▼ DÃY ĐẦU NHẬN BẮC (DOCK 01 ➔ DOCK 10)
+                        <div class="flex items-center justify-between mb-2 px-1">
+                            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300">
+                                ▼ DÃY BẮC (LINE 01 ➔ LINE 10)
                             </span>
-                            <span class="text-[10px] font-mono-num text-cyan-400">1 Người Quét + 4 Hỗ Trợ / Đầu Line</span>
+                            <span class="text-[10px] font-mono-num text-cyan-400">Chạm thẻ Line để sửa NV</span>
                         </div>
                         <div id="north-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2"></div>
                     </div>
 
-                    <div class="relative h-12 rounded-xl belt-main-horizontal border-2 border-cyan-500/50 shadow-inner flex items-center justify-between px-4 overflow-hidden my-1">
-                        <div class="z-10 bg-slate-950/90 border border-cyan-500/40 px-3 py-1 rounded-lg flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                            <span class="text-[11px] font-extrabold tracking-wider uppercase text-cyan-300">
-                                BĂNG CHUYỀN CHÍNH TRUNG TÂM (20 TELE LINE MERGING BELT)
+                    <!-- Băng Chuyền Chính Trung Tâm -->
+                    <div class="relative py-2.5 sm:h-12 rounded-xl belt-main-horizontal border-2 border-cyan-500/50 shadow-inner flex flex-col sm:flex-row items-center justify-between px-3 sm:px-4 gap-1.5 overflow-hidden my-1">
+                        <div class="z-10 bg-slate-950/90 border border-cyan-500/40 px-2.5 py-1 rounded-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping shrink-0"></span>
+                            <span class="text-[10px] sm:text-[11px] font-extrabold tracking-wider uppercase text-cyan-300 text-center">
+                                BĂNG CHUYỀN CHÍNH TRUNG TÂM (20 TELE LINE)
                             </span>
                         </div>
-                        <div class="z-10 bg-amber-500 text-slate-950 font-extrabold text-[11px] px-3 py-1 rounded-lg shadow flex items-center gap-1">
-                            <span>HƯỚNG RA PHÂN LOẠI (OUTBOUND)</span>
+                        <div class="z-10 bg-amber-500 text-slate-950 font-extrabold text-[10px] sm:text-[11px] px-2.5 py-1 rounded-lg shadow flex items-center gap-1">
+                            <span>RA PHÂN LOẠI (OUTBOUND)</span>
                             <span>➔➔</span>
                         </div>
                     </div>
 
                     <div>
                         <div id="south-lines-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2"></div>
-                        <div class="flex items-center justify-between mt-1.5 px-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                ▲ DÃY ĐẦU NHẬN NAM (DOCK 11 ➔ DOCK 20) • Khi Line TẮT: Đổi màu nút sang Đỏ &amp; Tắt nhân viên
+                        <div class="flex items-center justify-between mt-2 px-1">
+                            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-300">
+                                ▲ DÃY NAM (LINE 11 ➔ LINE 20)
                             </span>
+                            <span class="text-[10px] text-rose-400 font-semibold hidden sm:inline">Line TẮT = Nút Đỏ &amp; Ẩn tên NV</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <aside class="w-full xl:w-[410px] 2xl:w-[440px] bg-slate-900/95 border-t xl:border-t-0 xl:border-l border-slate-800 flex flex-col h-full overflow-y-auto p-3 space-y-3 shrink-0">
-                <div class="glass-panel rounded-xl p-3 border border-amber-500/40 shadow-lg">
+            <!-- Cột Phải: Top 6 API + 3 Ca Làm Việc + Xe Tồn Chưa Xả -->
+            <aside id="master-right-pane" class="w-full xl:w-[410px] 2xl:w-[440px] bg-slate-900/95 border-t xl:border-t-0 xl:border-l border-slate-800 flex flex-col xl:h-full xl:overflow-y-auto p-2.5 sm:p-3 space-y-3 shrink-0">
+                <!-- Khối 1: Top 6 API -->
+                <div id="master-card-top6" class="glass-panel rounded-xl p-3 border border-amber-500/40 shadow-lg">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5">
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">TOP 6 API</span>
-                                <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Sản Lượng Giờ Cao Nhất</h2>
-                            </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">TOP 6 API</span>
+                            <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Sản Lượng Cao Nhất</h2>
                         </div>
-                        <span id="top6-slot-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                        <span id="top6-slot-badge" class="text-[10px] font-mono-num font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700 truncate max-w-[150px]">
                             10:00 - 11:00
                         </span>
                     </div>
                     <div id="master-top6-list" class="space-y-1.5"></div>
                 </div>
 
-                <div class="glass-panel rounded-xl p-3 border border-slate-800">
+                <!-- Khối 2: Tất Cả Các Giờ & 3 Ca Chính -->
+                <div id="master-card-shifts" class="glass-panel rounded-xl p-3 border border-slate-800">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                         <div>
                             <h2 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">
                                 Sản Lượng Tất Cả Các Giờ (Gom 3 Ca)
                             </h2>
-                            <p class="text-[10px] text-slate-400">Nhấn vào Tất cả, Ca chính hoặc từng Ca nhỏ</p>
+                            <p class="text-[10px] text-slate-400">Chạm vào Tất cả, Ca chính hoặc từng Ca nhỏ</p>
                         </div>
                         <span id="all-hours-grand-badge" class="text-[11px] font-mono-num font-bold text-emerald-400">Tổng: 0</span>
                     </div>
-                    <div id="master-all-hours-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                    <div id="master-all-hours-table" class="space-y-2 max-h-80 xl:max-h-72 overflow-y-auto pr-1"></div>
                 </div>
 
-                <div class="glass-panel rounded-xl p-3 border border-rose-500/30 flex-1 flex flex-col">
+                <!-- Khối 3: Xe Tồn Chưa Xả -->
+                <div id="master-card-trucks" class="glass-panel rounded-xl p-3 border border-rose-500/30 flex-1 flex flex-col">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <div>
-                            <h2 class="text-xs font-extrabold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                                Xe Tồn Chưa Xả (<span id="sidebar-pending-count">0</span> Xe)
-                            </h2>
-                        </div>
-                        <button onclick="addNewPendingTruck()" class="px-2 py-1 rounded bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[10px] font-bold transition">
+                        <h2 class="text-xs font-extrabold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                            Xe Tồn Chưa Xả (<span id="sidebar-pending-count">0</span> Xe)
+                        </h2>
+                        <button onclick="addNewPendingTruck()" class="px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 text-[11px] font-bold transition">
                             + Thêm Xe Tồn
                         </button>
                     </div>
-                    <div id="master-pending-trucks-list" class="space-y-1.5 overflow-y-auto max-h-52 pr-1"></div>
+                    <div id="master-pending-trucks-list" class="space-y-1.5 overflow-y-auto max-h-60 pr-1"></div>
                 </div>
             </aside>
         </section>
@@ -309,27 +365,31 @@
         <!-- ===================================================================== -->
         <!-- MODULE 2: CODE NHẬP TÊN NGƯỜI QUÉT (1+4) & LINE STATUS                -->
         <!-- ===================================================================== -->
-        <section id="page-crew" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-            <div class="max-w-7xl mx-auto space-y-5 pb-12">
-                <div class="glass-panel rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border border-cyan-500/30">
+        <section id="page-crew" class="hidden flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-4 pb-12">
+                <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border border-cyan-500/30">
                     <div>
-                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold mb-1.5">
-                            PHÂN HỆ NHẬP TÊN NGƯỜI QUÉT &amp; ĐIỀU KHIỂN TRẠNG THÁI LINE
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] sm:text-[11px] font-bold mb-1">
+                            PHÂN HỆ NHẬP TÊN NGƯỜI QUÉT &amp; BẬT/TẮT LINE
                         </div>
-                        <h2 class="text-lg sm:text-xl font-black text-white">Quản Lý Nhân Sự 20 Đầu Nhận (1 Người Quét Chính + 4 Người Hỗ Trợ)</h2>
+                        <h2 class="text-base sm:text-xl font-black text-white">Quản Lý Nhân Sự 20 Đầu Nhận (1 Quét Chính + 4 Hỗ Trợ)</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 shrink-0">
-                        <input id="crew-search-input" oninput="renderCrewManagementPage()" type="text" placeholder="Tìm Line hoặc tên NV..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 w-48">
-                        <button onclick="randomizeSampleCrew()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700 transition">
-                            Nạp Mẫu 100 Nhân Sự
+                        <input id="crew-search-input" oninput="renderCrewManagementPage()" type="text" placeholder="Tìm Line hoặc tên NV..." class="w-full sm:w-48 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <button onclick="randomizeSampleCrew()" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700 transition">
+                            Nạp Mẫu 100 NV
                         </button>
-                        <button onclick="saveCrewAllChanges()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-extrabold shadow-lg transition">
-                            Lưu &amp; Đồng Bộ Lên Trang Tổng
+                        <button onclick="saveCrewAllChanges()" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-extrabold shadow-lg transition">
+                            Lưu &amp; Đồng Bộ
                         </button>
                     </div>
                 </div>
 
-                <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+                <!-- GIAO DIỆN THẺ DÀNH CHO ĐIỆN THOẠI (MOBILE CARDS VIEW) -->
+                <div id="crew-mobile-cards" class="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+                <!-- GIAO DIỆN BẢNG DÀNH CHO MÁY TÍNH (DESKTOP TABLE VIEW) -->
+                <div class="hidden lg:block glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -352,21 +412,21 @@
         <!-- ===================================================================== -->
         <!-- MODULE 3: TRANG CHẠY API (API ENGINE)                                 -->
         <!-- ===================================================================== -->
-        <section id="page-api" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-            <div class="max-w-7xl mx-auto space-y-5 pb-12">
-                <div class="glass-panel rounded-2xl p-5 border border-emerald-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <section id="page-api" class="hidden flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-4 pb-12">
+                <div class="glass-panel rounded-2xl p-4 sm:p-5 border border-emerald-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                     <div>
-                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold mb-1.5">
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] sm:text-[11px] font-bold mb-1">
                             REAL-TIME WMS API ENGINE
                         </div>
-                        <h2 class="text-lg sm:text-xl font-black text-white">Trung Tâm Điều Khiển Luồng Chạy API Hệ Thống</h2>
+                        <h2 class="text-base sm:text-xl font-black text-white">Trung Tâm Điều Khiển Luồng Chạy API Hệ Thống</h2>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                        <button id="api-toggle-btn" onclick="toggleApiEngine()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg flex items-center gap-2 transition">
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button id="api-toggle-btn" onclick="toggleApiEngine()" class="flex-1 sm:flex-initial justify-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg flex items-center gap-2 transition">
                             <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
                             <span id="api-toggle-btn-text">API ĐANG CHẠY (NHẤN ĐỂ DỪNG)</span>
                         </button>
-                        <button onclick="triggerApiTick(true)" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg transition">
+                        <button onclick="triggerApiTick(true)" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold shadow-lg transition">
                             ⚡ Bắn 1 Chu Kỳ API Ngay
                         </button>
                     </div>
@@ -377,14 +437,14 @@
                         <h3 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 border-b border-slate-800 pb-2">1. Cấu Hình Chu Kỳ Chạy API</h3>
                         <div>
                             <label class="block text-[11px] text-slate-400 font-semibold mb-1">Khung Giờ API Hiện Tại</label>
-                            <select id="api-hour-select" onchange="changeActiveHour(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono-num text-cyan-300 font-bold"></select>
+                            <select id="api-hour-select" onchange="changeActiveHour(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs font-mono-num text-cyan-300 font-bold"></select>
                         </div>
                         <div class="grid grid-cols-2 gap-2 pt-2 text-center">
-                            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
                                 <div class="text-[10px] text-slate-400">Tổng Gói Tin</div>
                                 <div id="api-stat-packets" class="font-mono-num text-base font-black text-emerald-400">128</div>
                             </div>
-                            <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                            <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-800">
                                 <div class="text-[10px] text-slate-400">Đồng Bộ Cuối</div>
                                 <div id="api-stat-lastsync" class="font-mono-num text-base font-black text-cyan-400">10:07</div>
                             </div>
@@ -394,10 +454,10 @@
                     <div class="glass-panel rounded-2xl p-4 space-y-3 border border-slate-800">
                         <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">2. Bơm Sản Lượng API &amp; Đua Top 6</h3>
                         <div class="flex gap-2">
-                            <select id="api-target-line-select" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white"></select>
-                            <button onclick="boostSelectedLineApi(50)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">+50 Kiện</button>
+                            <select id="api-target-line-select" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white"></select>
+                            <button onclick="boostSelectedLineApi(50)" class="px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">+50 Kiện</button>
                         </div>
-                        <button onclick="boostSelectedLineTruck()" class="w-full px-3 py-2 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition">+1 Xe Đã Quét Cho Line</button>
+                        <button onclick="boostSelectedLineTruck()" class="w-full px-3 py-2.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white border border-indigo-500/40 text-xs font-bold transition">+1 Xe Đã Quét Cho Line</button>
                     </div>
 
                     <div class="glass-panel rounded-2xl p-4 space-y-2 border border-slate-800">
@@ -409,7 +469,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
+                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-72 sm:h-80">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">Nhật Ký Luồng Chạy API</span>
                             <button onclick="clearApiLogs()" class="text-[11px] text-slate-400 hover:text-white">Xóa Log</button>
@@ -417,7 +477,7 @@
                         <div id="api-terminal-log" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono-num text-[11px] text-emerald-400 overflow-y-auto space-y-1"></div>
                     </div>
 
-                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-80">
+                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-col h-72 sm:h-80">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400">Cấu Trúc Gói Tin JSON API</span>
                             <button onclick="copyApiJson()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-cyan-600 text-cyan-300 hover:text-white text-[11px] font-bold">Copy</button>
@@ -429,45 +489,46 @@
         </section>
 
         <!-- ===================================================================== -->
-        <!-- MODULE 4: DASHBOARD CHI TIẾT                                          -->
+        <!-- MODULE 4: DASHBOARD CHI TIẾT (LINE • XE • 100 NHÂN VIÊN)              -->
         <!-- ===================================================================== -->
-        <section id="page-dashboard" class="hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-950">
-            <div class="max-w-7xl mx-auto space-y-6 pb-14">
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <div class="glass-panel p-3.5 rounded-2xl border border-slate-800">
-                        <div class="text-[10px] font-bold uppercase text-slate-400">Tổng Số Nhân Viên</div>
-                        <div id="db-kpi-total-staff" class="font-mono-num text-2xl font-black text-white mt-1">100</div>
+        <section id="page-dashboard" class="hidden flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-7xl mx-auto space-y-5 pb-14">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                    <div class="glass-panel p-3 rounded-2xl border border-slate-800">
+                        <div class="text-[10px] font-bold uppercase text-slate-400">Tổng Quân Số</div>
+                        <div id="db-kpi-total-staff" class="font-mono-num text-xl sm:text-2xl font-black text-white mt-1">100</div>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl border border-emerald-500/30">
-                        <div class="text-[10px] font-bold uppercase text-emerald-400">Đang Hoạt Động</div>
-                        <div id="db-kpi-active-staff" class="font-mono-num text-2xl font-black text-emerald-400 mt-1">80</div>
+                    <div class="glass-panel p-3 rounded-2xl border border-emerald-500/30">
+                        <div class="text-[10px] font-bold uppercase text-emerald-400">Đang Đứng Line</div>
+                        <div id="db-kpi-active-staff" class="font-mono-num text-xl sm:text-2xl font-black text-emerald-400 mt-1">80</div>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl border border-cyan-500/30">
+                    <div class="glass-panel p-3 rounded-2xl border border-cyan-500/30">
                         <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-semibold">Tổng Sản Lượng</div>
-                        <div id="db-kpi-grand-vol" class="font-mono-num text-2xl font-black text-cyan-400 mt-1">0</div>
+                        <div id="db-kpi-grand-vol" class="font-mono-num text-xl sm:text-2xl font-black text-cyan-400 mt-1">0</div>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl border border-indigo-500/30">
+                    <div class="glass-panel p-3 rounded-2xl border border-indigo-500/30">
                         <div class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Xe Đã Xả</div>
-                        <div id="db-kpi-completed-trucks" class="font-mono-num text-2xl font-black text-indigo-400 mt-1">0</div>
+                        <div id="db-kpi-completed-trucks" class="font-mono-num text-xl sm:text-2xl font-black text-indigo-400 mt-1">0</div>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl border border-amber-500/40">
-                        <div class="text-[10px] uppercase tracking-wider text-amber-400 font-semibold">Xe Tồn</div>
-                        <div id="db-kpi-pending-trucks" class="font-mono-num text-2xl font-black text-amber-400 mt-1">0</div>
+                    <div class="glass-panel p-3 rounded-2xl border border-amber-500/40">
+                        <div class="text-[10px] uppercase tracking-wider text-amber-400 font-semibold">Xe Tồn Bãi</div>
+                        <div id="db-kpi-pending-trucks" class="font-mono-num text-xl sm:text-2xl font-black text-amber-400 mt-1">0</div>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl border border-violet-500/30">
-                        <div class="text-[10px] uppercase tracking-wider text-violet-400 font-semibold">Năng Suất/NV</div>
-                        <div id="db-kpi-avg-staff" class="font-mono-num text-2xl font-black text-violet-400 mt-1">0</div>
+                    <div class="glass-panel p-3 rounded-2xl border border-violet-500/30">
+                        <div class="text-[10px] uppercase tracking-wider text-violet-400 font-semibold">TB Kiện/NV</div>
+                        <div id="db-kpi-avg-staff" class="font-mono-num text-xl sm:text-2xl font-black text-violet-400 mt-1">0</div>
                     </div>
                 </div>
 
+                <!-- Bảng A: Chi tiết 20 Line theo Ca -->
                 <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
-                    <div class="px-5 py-3.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                        <h3 class="text-sm font-extrabold uppercase tracking-wider text-cyan-400">A. Bảng Chi Tiết Thông Số 20 Line (3 Ca Chính)</h3>
-                        <select id="db-table-shift-filter" onchange="changeDashboardTableShiftFilter(this.value)" class="bg-slate-950 border border-cyan-500/50 rounded-lg px-3 py-1.5 text-xs font-bold text-cyan-300">
+                    <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-400">A. Thông Số Sản Lượng 20 Line (3 Ca Chính &amp; Từng Khung Giờ)</h3>
+                        <select id="db-table-shift-filter" onchange="changeDashboardTableShiftFilter(this.value)" class="w-full sm:w-auto bg-slate-950 border border-cyan-500/50 rounded-lg px-3 py-1.5 text-xs font-bold text-cyan-300">
                             <option value="ALL_SHIFTS">Tổng Hợp Cả 3 Ca</option>
-                            <option value="SHIFT_1">Ca 1 (06:00 - 15:00)</option>
-                            <option value="SHIFT_2">Ca 2 (13:00 - 22:00)</option>
-                            <option value="SHIFT_3">Ca 3 (22:00 - 06:00)</option>
+                            <option value="SHIFT_1">Chi Tiết Ca 1 (06:00 - 15:00)</option>
+                            <option value="SHIFT_2">Chi Tiết Ca 2 (13:00 - 22:00)</option>
+                            <option value="SHIFT_3">Chi Tiết Ca 3 (22:00 - 06:00)</option>
                         </select>
                     </div>
                     <div class="overflow-x-auto max-h-[440px]">
@@ -478,13 +539,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <!-- Bảng B: Xe chưa xả & Xe đã xả -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/40 flex flex-col">
                         <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">B1. Danh Sách Xe Chưa Xả (Tồn Bãi)</h3>
-                            <button onclick="addNewPendingTruck()" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition">+ Thêm Xe Mới</button>
+                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">B1. Xe Chưa Xả (Tồn Bãi)</h3>
+                            <button onclick="addNewPendingTruck()" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition">+ Thêm Xe</button>
                         </div>
-                        <div class="overflow-x-auto max-h-80">
+                        <div class="overflow-x-auto max-h-72">
                             <table class="w-full text-left border-collapse text-xs">
                                 <tbody id="db-pending-trucks-tbody" class="divide-y divide-slate-800/70"></tbody>
                             </table>
@@ -493,13 +555,88 @@
 
                     <div class="glass-panel rounded-2xl overflow-hidden border border-emerald-500/30 flex flex-col">
                         <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">B2. Danh Sách Xe Đã Được Xả</h3>
+                            <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">B2. Xe Đã Được Xả</h3>
                             <span id="db-completed-badge" class="text-xs font-mono-num font-bold text-emerald-300">0 chuyến</span>
                         </div>
-                        <div class="overflow-x-auto max-h-80">
+                        <div class="overflow-x-auto max-h-72">
                             <table class="w-full text-left border-collapse text-xs">
                                 <tbody id="db-completed-trucks-tbody" class="divide-y divide-slate-800/70"></tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng C: Thông số 100 Nhân Viên -->
+                <div class="glass-panel rounded-2xl overflow-hidden border border-violet-500/30">
+                    <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-violet-300">
+                            C. Thông Số Chi Tiết 100 Nhân Viên (20 Người Quét + 80 Người Hỗ Trợ)
+                        </h3>
+                        <span class="text-[11px] font-mono-num text-slate-400">Tự động tắt trạng thái khi Line đóng</span>
+                    </div>
+                    <div id="db-staff-directory-grid" class="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-96 overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- MODULE 5: XUẤT 4 FILE CODE ĐỘC LẬP CHO GITHUB PAGES                   -->
+        <!-- ===================================================================== -->
+        <section id="page-github" class="hidden flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 bg-slate-950">
+            <div class="max-w-6xl mx-auto space-y-4 pb-14">
+                <div class="glass-panel rounded-2xl p-4 sm:p-5 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-extrabold uppercase">GITHUB PAGES MULTI-FILE EXPORTER</span>
+                        <h2 class="text-base sm:text-xl font-black text-white mt-1">Lấy 4 File Code (.HTML) Đã Tối Ưu Cho Cả Điện Thoại &amp; Máy Tính</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Bạn có thể dùng trực tiếp 1 file duy nhất hoặc tải tách rời 4 file (`index.html`, `crew.html`, `api.html`, `dashboard.html`) lên GitHub.</p>
+                    </div>
+                    <button onclick="downloadAll4GithubFiles()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg shrink-0 transition">
+                        ⬇️ Tải Cả 4 File (.HTML) Về Máy
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="glass-panel p-4 rounded-xl border border-cyan-500/40 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="font-mono-num font-black text-sm text-cyan-400">1. index.html</div>
+                            <div class="text-xs text-slate-300 mt-1">Trang Tổng 20 Đầu Nhận, Top 6 API, 3 Ca Chính &amp; Xe Tồn.</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copySingleGithubFile('master', 'index.html')" class="flex-1 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">Copy Code</button>
+                            <button onclick="downloadSingleGithubFile('master', 'index.html')" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs">Tải</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl border border-emerald-500/40 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="font-mono-num font-black text-sm text-emerald-400">2. crew.html</div>
+                            <div class="text-xs text-slate-300 mt-1">Trang Nhập Tên Người Quét (1+4) &amp; Bật/Tắt Line (Hỗ trợ ĐT &amp; PC).</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copySingleGithubFile('crew', 'crew.html')" class="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">Copy Code</button>
+                            <button onclick="downloadSingleGithubFile('crew', 'crew.html')" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs">Tải</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl border border-amber-500/40 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="font-mono-num font-black text-sm text-amber-400">3. api.html</div>
+                            <div class="text-xs text-slate-300 mt-1">Trang Chạy API, Bơm Sản Lượng Đua Top 6 &amp; JSON Payload.</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copySingleGithubFile('api', 'api.html')" class="flex-1 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">Copy Code</button>
+                            <button onclick="downloadSingleGithubFile('api', 'api.html')" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs">Tải</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl border border-violet-500/40 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="font-mono-num font-black text-sm text-violet-400">4. dashboard.html</div>
+                            <div class="text-xs text-slate-300 mt-1">Trang Dashboard Chi Tiết 20 Line, Xe Đã Xả/Chưa Xả &amp; 100 NV.</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copySingleGithubFile('dashboard', 'dashboard.html')" class="flex-1 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs">Copy Code</button>
+                            <button onclick="downloadSingleGithubFile('dashboard', 'dashboard.html')" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-violet-300 font-bold text-xs">Tải</button>
                         </div>
                     </div>
                 </div>
@@ -683,6 +820,7 @@
         let apiTimerId = null;
         let apiLogs = [];
         let editingLineIdx = null;
+        let mobileMasterSubView = 'ALL'; // ALL | LINES | SHIFTS | TRUCKS
 
         function loadState() {
             try {
@@ -807,18 +945,67 @@
             renderMasterPage();
         }
 
+        function setMobileMasterSubView(subMode) {
+            mobileMasterSubView = subMode;
+            const leftPane = document.getElementById('master-left-pane');
+            const rightPane = document.getElementById('master-right-pane');
+            const cardTop6 = document.getElementById('master-card-top6');
+            const cardShifts = document.getElementById('master-card-shifts');
+            const cardTrucks = document.getElementById('master-card-trucks');
+
+            ['all', 'lines', 'shifts', 'trucks'].forEach(k => {
+                const btn = document.getElementById(`m-sub-${k}`);
+                if (btn) {
+                    const active = k.toUpperCase() === subMode;
+                    btn.className = active
+                        ? 'px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-600 text-white shadow'
+                        : 'px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300';
+                }
+            });
+
+            if (subMode === 'ALL') {
+                leftPane.classList.remove('hidden');
+                rightPane.classList.remove('hidden');
+                cardTop6.classList.remove('hidden');
+                cardShifts.classList.remove('hidden');
+                cardTrucks.classList.remove('hidden');
+            } else if (subMode === 'LINES') {
+                leftPane.classList.remove('hidden');
+                rightPane.classList.add('hidden');
+            } else if (subMode === 'SHIFTS') {
+                leftPane.classList.add('hidden');
+                rightPane.classList.remove('hidden');
+                cardTop6.classList.remove('hidden');
+                cardShifts.classList.remove('hidden');
+                cardTrucks.classList.add('hidden');
+            } else if (subMode === 'TRUCKS') {
+                leftPane.classList.add('hidden');
+                rightPane.classList.remove('hidden');
+                cardTop6.classList.add('hidden');
+                cardShifts.classList.add('hidden');
+                cardTrucks.classList.remove('hidden');
+            }
+        }
+
         function switchPage(page) {
             state.activePage = page;
-            ['master', 'crew', 'api', 'dashboard'].forEach(p => {
+            ['master', 'crew', 'api', 'dashboard', 'github'].forEach(p => {
                 const sec = document.getElementById(`page-${p}`);
                 const nav = document.getElementById(`nav-${p}`);
+                const mnav = document.getElementById(`mnav-${p}`);
                 if (sec) sec.classList.toggle('hidden', p !== page);
                 if (nav) {
                     nav.className = p === page
                         ? 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap bg-cyan-600 text-white shadow'
                         : 'px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800';
                 }
+                if (mnav) {
+                    mnav.className = p === page
+                        ? 'flex flex-col items-center justify-center gap-0.5 text-cyan-400 font-extrabold bg-slate-800/70 rounded-xl my-1'
+                        : 'flex flex-col items-center justify-center gap-0.5 text-slate-400 font-semibold';
+                }
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             renderAll();
         }
 
@@ -1008,12 +1195,15 @@
         function renderCrewManagementPage() {
             const searchVal = (document.getElementById('crew-search-input')?.value || '').trim().toLowerCase();
             const tbody = document.getElementById('crew-20lines-tbody');
-            if (!tbody) return;
+            const mobileCards = document.getElementById('crew-mobile-cards');
 
-            tbody.innerHTML = state.lines.map((line, idx) => {
+            const filteredLines = state.lines.map((line, idx) => ({ line, idx })).filter(({ line }) => {
                 const matchText = `${line.name} ${line.scannerName} ${line.supporters.join(' ')}`.toLowerCase();
-                if (searchVal && !matchText.includes(searchVal)) return '';
-                return `
+                return !searchVal || matchText.includes(searchVal);
+            });
+
+            if (tbody) {
+                tbody.innerHTML = filteredLines.map(({ line, idx }) => `
                     <tr class="${line.isOpen ? 'bg-slate-950/40 hover:bg-slate-900/70' : 'bg-rose-950/10 opacity-75'} transition">
                         <td class="py-3 px-3">
                             <div class="font-mono-num font-black text-sm ${line.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${line.name}</div>
@@ -1025,41 +1215,81 @@
                         </td>
                         <td class="py-3 px-3">
                             <div class="flex gap-1.5">
-                                <input id="crew-scanner-name-${idx}" type="text" value="${line.scannerName}" oninput="liveUpdateCrewRow(${idx})" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-semibold">
-                                <input id="crew-scanner-id-${idx}" type="text" value="${line.scannerId}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 font-mono-num">
+                                <input id="crew-scanner-name-${idx}" type="text" value="${line.scannerName}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-semibold">
+                                <input id="crew-scanner-id-${idx}" type="text" value="${line.scannerId}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 font-mono-num">
                             </div>
                         </td>
                         <td class="py-3 px-3">
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                                <input id="crew-sup-${idx}-0" type="text" value="${line.supporters[0]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
-                                <input id="crew-sup-${idx}-1" type="text" value="${line.supporters[1]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
-                                <input id="crew-sup-${idx}-2" type="text" value="${line.supporters[2]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
-                                <input id="crew-sup-${idx}-3" type="text" value="${line.supporters[3]}" oninput="liveUpdateCrewRow(${idx})" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-0" type="text" value="${line.supporters[0]}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-1" type="text" value="${line.supporters[1]}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-2" type="text" value="${line.supporters[2]}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                                <input id="crew-sup-${idx}-3" type="text" value="${line.supporters[3]}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
                             </div>
                         </td>
                         <td class="py-3 px-3 text-right">
-                            <input id="crew-trucks-${idx}" type="number" min="0" value="${line.trucksScanned}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num font-bold text-indigo-300">
+                            <input id="crew-trucks-${idx}" type="number" min="0" value="${line.trucksScanned}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num font-bold text-indigo-300">
                         </td>
                         <td class="py-3 px-3 text-right">
-                            <input id="crew-target-${idx}" type="number" min="50" value="${line.targetPerHour}" oninput="liveUpdateCrewRow(${idx})" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num text-slate-300">
+                            <input id="crew-target-${idx}" type="number" min="50" value="${line.targetPerHour}" oninput="liveUpdateCrewRow(${idx}, 'desktop')" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-right font-mono-num text-slate-300">
                         </td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
+            }
+
+            if (mobileCards) {
+                mobileCards.innerHTML = filteredLines.map(({ line, idx }) => `
+                    <div class="glass-panel rounded-2xl p-3.5 border ${line.isOpen ? 'border-cyan-500/40' : 'border-rose-500/30 opacity-80'} space-y-2.5">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="font-mono-num font-black text-sm ${line.isOpen ? 'text-cyan-400' : 'text-slate-400'}">${line.name}</span>
+                            <button onclick="toggleSingleLineStatus(${idx})" class="px-3 py-1.5 rounded-xl font-extrabold text-xs ${line.isOpen ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white'}">
+                                ${line.isOpen ? '🟢 ĐANG MỞ' : '🔴 ĐÃ TẮT'}
+                            </button>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-cyan-300 mb-1">1. Người Quét Chính &amp; Mã NV</label>
+                            <div class="flex gap-1.5">
+                                <input id="m-crew-scanner-name-${idx}" type="text" value="${line.scannerName}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-semibold">
+                                <input id="m-crew-scanner-id-${idx}" type="text" value="${line.scannerId}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="w-20 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 font-mono-num">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase text-emerald-300 mb-1">2. Bốn Người Hỗ Trợ</label>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <input id="m-crew-sup-${idx}-0" type="text" value="${line.supporters[0]}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200">
+                                <input id="m-crew-sup-${idx}-1" type="text" value="${line.supporters[1]}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200">
+                                <input id="m-crew-sup-${idx}-2" type="text" value="${line.supporters[2]}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200">
+                                <input id="m-crew-sup-${idx}-3" type="text" value="${line.supporters[3]}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Số Xe Đã Quét</label>
+                                <input id="m-crew-trucks-${idx}" type="number" min="0" value="${line.trucksScanned}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono-num font-bold text-indigo-300">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400">Định Mức/Giờ</label>
+                                <input id="m-crew-target-${idx}" type="number" min="50" value="${line.targetPerHour}" oninput="liveUpdateCrewRow(${idx}, 'mobile')" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono-num text-slate-300">
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
-        function liveUpdateCrewRow(idx) {
+        function liveUpdateCrewRow(idx, source = 'desktop') {
             const line = state.lines[idx];
             if (!line) return;
-            const scName = document.getElementById(`crew-scanner-name-${idx}`);
-            const scId = document.getElementById(`crew-scanner-id-${idx}`);
-            const trkInput = document.getElementById(`crew-trucks-${idx}`);
-            const tarInput = document.getElementById(`crew-target-${idx}`);
+            const prefix = source === 'mobile' ? 'm-' : '';
+            const scName = document.getElementById(`${prefix}crew-scanner-name-${idx}`);
+            const scId = document.getElementById(`${prefix}crew-scanner-id-${idx}`);
+            const trkInput = document.getElementById(`${prefix}crew-trucks-${idx}`);
+            const tarInput = document.getElementById(`${prefix}crew-target-${idx}`);
 
             if (scName) line.scannerName = scName.value.trim() || 'Chưa phân công';
             if (scId) line.scannerId = scId.value.trim() || `NV-${101 + idx}`;
             for (let s = 0; s < 4; s++) {
-                const supInput = document.getElementById(`crew-sup-${idx}-${s}`);
+                const supInput = document.getElementById(`${prefix}crew-sup-${idx}-${s}`);
                 if (supInput) line.supporters[s] = supInput.value.trim() || `Hỗ trợ ${s + 1}`;
             }
             if (trkInput) line.trucksScanned = Math.max(0, parseInt(trkInput.value, 10) || 0);
@@ -1278,6 +1508,26 @@
                             <td class="py-2 px-3 text-right font-extrabold text-emerald-400">${fmt(getLineTotalVol(l))}</td>
                         </tr>
                     `).join('');
+                } else {
+                    const shift = getShiftDef(state.dashboardTableShiftFilter);
+                    detailThead.innerHTML = `
+                        <tr class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <th class="py-2.5 px-3">Line</th>
+                            <th class="py-2.5 px-2">Trạng Thái</th>
+                            <th class="py-2.5 px-3">Người Quét</th>
+                            ${shift.slotIndices.map(sIdx => `<th class="py-2.5 px-2 text-right">${state.hourSlots[sIdx].split(' - ')[0]}</th>`).join('')}
+                            <th class="py-2.5 px-3 text-right text-emerald-400 font-extrabold">Tổng ${shift.name.split(':')[0]}</th>
+                        </tr>
+                    `;
+                    detailTbody.innerHTML = state.lines.map((l, idx) => `
+                        <tr class="${l.isOpen ? 'hover:bg-slate-900/70' : 'bg-rose-950/15 text-slate-500'} transition">
+                            <td class="py-2 px-3 font-bold ${l.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${l.name}</td>
+                            <td class="py-2 px-2"><button onclick="toggleSingleLineStatus(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold ${l.isOpen ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${l.isOpen ? 'MỞ' : 'TẮT'}</button></td>
+                            <td class="py-2 px-3 font-sans font-semibold whitespace-nowrap ${l.isOpen ? 'text-white' : 'line-through text-slate-600'}">${l.isOpen ? l.scannerName : 'Đã tắt'}</td>
+                            ${shift.slotIndices.map(sIdx => `<td class="py-2 px-2 text-right">${fmt(getLineSlotVol(l, sIdx))}</td>`).join('')}
+                            <td class="py-2 px-3 text-right font-extrabold text-emerald-400">${fmt(getLineShiftVol(l, shift.id))}</td>
+                        </tr>
+                    `).join('');
                 }
             }
 
@@ -1285,7 +1535,7 @@
                 <tr class="hover:bg-slate-900/60 text-xs">
                     <td class="py-2.5 px-3 font-mono-num font-bold text-amber-300">${t.plate}</td>
                     <td class="py-2.5 px-2 text-right font-mono-num text-white">${fmt(t.estBoxes)} kiện</td>
-                    <td class="py-2.5 px-3 text-right"><button onclick="unloadPendingTruck(${i})" class="px-2 py-1 rounded bg-emerald-600 text-white font-bold text-[10px]">Xả Xe</button></td>
+                    <td class="py-2.5 px-3 text-right"><button onclick="unloadPendingTruck(${i})" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold text-[10px]">Xả Xe</button></td>
                 </tr>
             `).join('');
 
@@ -1297,6 +1547,70 @@
                     <td class="py-2.5 px-2 text-right font-mono-num text-white">${fmt(c.boxes)} kiện</td>
                 </tr>
             `).join('');
+
+            const staffGrid = document.getElementById('db-staff-directory-grid');
+            if (staffGrid) {
+                staffGrid.innerHTML = state.lines.map(l => `
+                    <div class="rounded-xl border p-2.5 text-xs ${l.isOpen ? 'bg-slate-950/80 border-slate-800' : 'bg-rose-950/15 border-rose-900/30 opacity-65'}">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-mono-num font-black ${l.isOpen ? 'text-cyan-400' : 'text-slate-500'}">${l.name}</span>
+                            <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded ${l.isOpen ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${l.isOpen ? '5/5 NV Mở' : 'Đã Tắt NV'}</span>
+                        </div>
+                        <div class="font-bold text-white truncate">1. Quét: ${l.isOpen ? l.scannerName : '--- (Line Tắt) ---'}</div>
+                        <div class="text-[11px] text-slate-400 mt-1 space-y-0.5">
+                            ${l.supporters.map((s, idx) => `<div class="truncate">• HT${idx + 1}: ${l.isOpen ? s : '---'}</div>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function buildStandaloneGithubFile(defaultPage) {
+            const fullHtml = document.documentElement.outerHTML;
+            return '<!DOCTYPE html>\n<html lang="vi" class="dark">\n' +
+                fullHtml.replace("activePage: 'master'", `activePage: '${defaultPage}'`)
+                        .replace("switchPage('master')", "window.location.href='index.html'")
+                        .replace("switchPage('crew')", "window.location.href='crew.html'")
+                        .replace("switchPage('api')", "window.location.href='api.html'")
+                        .replace("switchPage('dashboard')", "window.location.href='dashboard.html'") +
+                '\n</html>';
+        }
+
+        function copySingleGithubFile(pageKey, fileName) {
+            const code = buildStandaloneGithubFile(pageKey);
+            const ta = document.createElement('textarea');
+            ta.value = code;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast(`Đã copy code của file ${fileName}!`);
+        }
+
+        function downloadSingleGithubFile(pageKey, fileName) {
+            const code = buildStandaloneGithubFile(pageKey);
+            const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Đang tải file ${fileName}...`);
+        }
+
+        function downloadAll4GithubFiles() {
+            const files = [
+                { key: 'master', name: 'index.html' },
+                { key: 'crew', name: 'crew.html' },
+                { key: 'api', name: 'api.html' },
+                { key: 'dashboard', name: 'dashboard.html' }
+            ];
+            files.forEach((f, idx) => {
+                setTimeout(() => downloadSingleGithubFile(f.key, f.name), idx * 350);
+            });
         }
 
         function openQuickEditModal(idx) {
@@ -1368,7 +1682,7 @@
         }
 
         window.onload = function () {
-            renderAll();
+            switchPage(state.activePage || 'master');
             startApiLoop();
             setInterval(() => {
                 const now = new Date();
